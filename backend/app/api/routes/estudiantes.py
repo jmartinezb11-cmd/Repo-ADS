@@ -61,3 +61,7 @@ def registrar(data: EstudianteRegistro):
             status_code=500,
             detail="Ocurrió un error al registrar el estudiante."
         )
+
+
+
+    

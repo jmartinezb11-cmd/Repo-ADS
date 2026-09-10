@@ -1,0 +1,23 @@
+.contenedor-login {
+    max-width: 420px;
+}
+
+.contenedor-login .campo {
+    margin-bottom: 18px;
+}
+
+.enlace-secundario {
+    text-align: center;
+    margin-top: 18px;
+    color: #666;
+}
+
+.enlace-secundario a {
+    color: #222;
+    font-weight: bold;
+    text-decoration: none;
+}
+
+.enlace-secundario a:hover {
+    text-decoration: underline;
+}
