@@ -1,0 +1,151 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Reporte: Estructura HTML5</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&display=swap" rel="stylesheet">
+    <style>
+        body { font-family: 'Inter', sans-serif; }
+    </style>
+</head>
+<body class="bg-gray-100 text-gray-800 min-h-screen p-4 md:p-8">
+
+    <div class="max-w-4xl mx-auto bg-white shadow-xl rounded-2xl overflow-hidden">
+        
+        <!-- 1. CARÁTULA -->
+        <header class="bg-blue-900 text-white p-12 text-center border-b-8 border-blue-500">
+            <h1 class="text-4xl md:text-5xl font-bold mb-4">Reporte de Desarrollo Web</h1>
+            <h2 class="text-2xl font-light mb-8">Estructuración con Etiquetas Semánticas HTML5</h2>
+            
+            <div class="mt-12 inline-block text-left bg-blue-800 p-6 rounded-xl shadow-inner">
+                <p class="text-lg"><span class="font-semibold text-blue-300">Curso:</span> Tecnologías Web</p>
+                <p class="text-lg"><span class="font-semibold text-blue-300">Estudiante:</span> [Tu Nombre / Apellido]</p>
+                <p class="text-lg"><span class="font-semibold text-blue-300">Fecha:</span> 1 de Agosto de 2026</p>
+            </div>
+        </header>
+
+        <main class="p-8 md:p-12 space-y-12">
+            
+            <!-- 2. INTRODUCCIÓN -->
+            <section aria-labelledby="intro-title" class="space-y-4">
+                <h2 id="intro-title" class="text-3xl font-bold text-gray-800 border-b-2 border-gray-200 pb-2">Introducción</h2>
+                <p class="text-gray-600 leading-relaxed text-lg">
+                    El presente documento demuestra el uso adecuado de las etiquetas semánticas de HTML5 para estructurar contenido web. HTML5 introdujo elementos como <code>&lt;section&gt;</code>, <code>&lt;article&gt;</code> y <code>&lt;time&gt;</code>, los cuales permiten a los navegadores y motores de búsqueda comprender mejor la jerarquía y el propósito de la información. A continuación, se presenta una página funcional de noticias construida exclusivamente bajo estos estándares.
+                </p>
+            </section>
+
+            <!-- 3. CONTENIDO / 5. EJECUCIÓN DE LA PÁGINA -->
+            <section aria-labelledby="execution-title" class="space-y-6">
+                <h2 id="execution-title" class="text-3xl font-bold text-gray-800 border-b-2 border-gray-200 pb-2">Contenido y Ejecución de la Página</h2>
+                <p class="text-gray-500 italic mb-4">A continuación se muestra el renderizado en vivo (la ejecución) del código HTML5 solicitado:</p>
+                
+                <!-- INICIO DEL CÓDIGO HTML5 REQUERIDO -->
+                <div class="border-4 border-dashed border-blue-200 p-6 md:p-8 rounded-xl bg-gray-50 relative">
+                    <span class="absolute top-0 right-0 bg-blue-200 text-blue-800 text-xs font-bold px-3 py-1 rounded-bl-xl rounded-tr-lg uppercase tracking-wider">Ejecución en Vivo</span>
+                    
+                    <!-- Sección: Últimas Noticias -->
+                    <section id="ultimas-noticias">
+                        <h3 class="text-2xl font-bold text-blue-900 mb-6 flex items-center gap-2">
+                            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 20H5a2 2 0 01-2-2V6a2 2 0 012-2h10a2 2 0 012 2v1m2 13a2 2 0 01-2-2V7m2 13a2 2 0 002-2V9.5a2 2 0 00-2-2h-2m-4-3H9M7 16h6M7 8h6v4H7V8z"></path></svg>
+                            Últimas Noticias
+                        </h3>
+
+                        <div class="grid gap-8 md:grid-cols-2">
+                            <!-- Noticia 1 -->
+                            <article class="bg-white p-6 rounded-lg shadow-md border border-gray-100 hover:shadow-lg transition-shadow">
+                                <h4 class="text-xl font-semibold text-gray-800 mb-2">Avances revolucionarios en Inteligencia Artificial</h4>
+                                <time datetime="2026-08-01" class="text-sm text-blue-600 font-medium block mb-4">1 de Agosto de 2026</time>
+                                <p class="text-gray-600 mb-3 leading-relaxed">
+                                    Las principales empresas tecnológicas han anunciado un avance sin precedentes en el procesamiento de lenguaje natural. Los nuevos modelos son capaces de razonar y resolver problemas complejos matemáticos con una precisión del 99%, marcando un hito en la historia de la computación.
+                                </p>
+                                <p class="text-gray-600 leading-relaxed">
+                                    Expertos aseguran que esta tecnología estará disponible para el público general a finales de este año. Se espera que revolucione sectores como la medicina, la educación y la ingeniería, automatizando tareas que antes requerían meses de investigación.
+                                </p>
+                            </article>
+
+                            <!-- Noticia 2 -->
+                            <article class="bg-white p-6 rounded-lg shadow-md border border-gray-100 hover:shadow-lg transition-shadow">
+                                <h4 class="text-xl font-semibold text-gray-800 mb-2">Nueva misión tripulada hacia el planeta Marte</h4>
+                                <time datetime="2026-07-30" class="text-sm text-blue-600 font-medium block mb-4">30 de Julio de 2026</time>
+                                <p class="text-gray-600 mb-3 leading-relaxed">
+                                    La coalición internacional espacial ha confirmado que la misión "Ares V" se lanzará el próximo mes. Esta será la primera vez en la década que un equipo de seis astronautas viajará con el objetivo de establecer un campamento base semi-permanente en la superficie marciana.
+                                </p>
+                                <p class="text-gray-600 leading-relaxed">
+                                    El equipo llevará consigo tecnología de impresión 3D a gran escala para construir hábitats utilizando el polvo marciano. Si la misión resulta exitosa, allanará el camino para futuras colonias humanas sostenibles fuera de la Tierra en los próximos cincuenta años.
+                                </p>
+                            </article>
+                        </div>
+                    </section>
+                </div>
+                <!-- FIN DEL CÓDIGO HTML5 REQUERIDO -->
+            </section>
+
+            <!-- 4. CÓDIGO FUENTE -->
+            <section aria-labelledby="code-title" class="space-y-4">
+                <h2 id="code-title" class="text-3xl font-bold text-gray-800 border-b-2 border-gray-200 pb-2">Código Fuente HTML5</h2>
+                <p class="text-gray-600 text-lg">A continuación se detalla la estructura semántica implementada (omitiendo las clases CSS para mayor claridad en la estructura HTML):</p>
+                <div class="bg-gray-900 rounded-xl shadow-md overflow-hidden">
+                    <div class="flex items-center px-4 py-2 bg-gray-800">
+                        <div class="flex space-x-2">
+                            <div class="w-3 h-3 rounded-full bg-red-500"></div>
+                            <div class="w-3 h-3 rounded-full bg-yellow-500"></div>
+                            <div class="w-3 h-3 rounded-full bg-green-500"></div>
+                        </div>
+                        <span class="ml-4 text-xs text-gray-400 font-mono">index.html</span>
+                    </div>
+<pre class="p-4 text-sm font-mono text-blue-300 overflow-x-auto">
+<code>&lt;!-- Sección: Últimas Noticias --&gt;
+&lt;section id="ultimas-noticias"&gt;
+    &lt;h1&gt;Últimas Noticias&lt;/h1&gt;
+
+    &lt;!-- Noticia 1 --&gt;
+    &lt;article&gt;
+        &lt;h2&gt;Avances revolucionarios en Inteligencia Artificial&lt;/h2&gt;
+        &lt;time datetime="2026-08-01"&gt;1 de Agosto de 2026&lt;/time&gt;
+        &lt;p&gt;
+            Las principales empresas tecnológicas han anunciado un avance 
+            sin precedentes en el procesamiento de lenguaje natural...
+        &lt;/p&gt;
+        &lt;p&gt;
+            Expertos aseguran que esta tecnología estará disponible para el 
+            público general a finales de este año...
+        &lt;/p&gt;
+    &lt;/article&gt;
+
+    &lt;!-- Noticia 2 --&gt;
+    &lt;article&gt;
+        &lt;h2&gt;Nueva misión tripulada hacia el planeta Marte&lt;/h2&gt;
+        &lt;time datetime="2026-07-30"&gt;30 de Julio de 2026&lt;/time&gt;
+        &lt;p&gt;
+            La coalición internacional espacial ha confirmado que la misión 
+            "Ares V" se lanzará el próximo mes...
+        &lt;/p&gt;
+        &lt;p&gt;
+            El equipo llevará consigo tecnología de impresión 3D a gran escala 
+            para construir hábitats utilizando el polvo marciano...
+        &lt;/p&gt;
+    &lt;/article&gt;
+&lt;/section&gt;</code>
+</pre>
+                </div>
+            </section>
+
+            <!-- 6. CONCLUSIÓN -->
+            <section aria-labelledby="conclusion-title" class="space-y-4">
+                <h2 id="conclusion-title" class="text-3xl font-bold text-gray-800 border-b-2 border-gray-200 pb-2">Conclusión</h2>
+                <div class="bg-blue-50 border-l-4 border-blue-500 p-6 rounded-r-lg">
+                    <p class="text-gray-700 leading-relaxed text-lg">
+                        El uso exclusivo de las etiquetas semánticas de HTML5 (como <code>&lt;section&gt;</code>, <code>&lt;article&gt;</code> y <code>&lt;time&gt;</code>) no solo facilita la lectura del código fuente para otros desarrolladores, sino que también mejora significativamente la accesibilidad web y el posicionamiento en buscadores (SEO). A través de este ejercicio, se comprobó cómo con unas pocas líneas de código bien estructuradas se puede crear un bloque de contenido informativo sólido, claro e independiente.
+                    </p>
+                </div>
+            </section>
+        </main>
+        
+        <footer class="bg-gray-800 text-gray-400 text-center py-6">
+            <p>&copy; 2026 - Reporte de Desarrollo Web HTML5</p>
+        </footer>
+    </div>
+</body>
+</html>

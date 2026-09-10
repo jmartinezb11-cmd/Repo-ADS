@@ -19,3 +19,7 @@ def health():
     return {
         "status": "ok"
     }
+
+
+from app.api import roles_demo
+app.include_router(roles_demo.router)
