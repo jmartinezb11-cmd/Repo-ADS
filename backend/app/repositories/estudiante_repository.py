@@ -247,3 +247,47 @@ def crear_estudiante_completo(
             cursor.close()
 
         connection.close()
+
+
+def obtener_estudiante_por_email(email: str) -> dict | None:
+    connection = get_connection()
+    cursor = None
+
+    try:
+        cursor = connection.cursor()
+
+        cursor.execute(
+            """
+            SELECT
+                id_estudiante,
+                primer_nombre,
+                primer_apellido,
+                email,
+                password_hash,
+                estado_cuenta
+            FROM estudiantes
+            WHERE email = %s
+            LIMIT 1
+            """,
+            (email,)
+        )
+
+        fila = cursor.fetchone()
+
+        if fila is None:
+            return None
+
+        return {
+            "id_estudiante": fila[0],
+            "primer_nombre": fila[1],
+            "primer_apellido": fila[2],
+            "email": fila[3],
+            "password_hash": fila[4],
+            "estado_cuenta": fila[5]
+        }
+
+    finally:
+        if cursor:
+            cursor.close()
+
+        connection.close()        
