@@ -2,7 +2,7 @@ const formLogin = document.getElementById("formLogin");
 const mensaje = document.getElementById("mensaje");
 
 
-const API_URL = "http://127.0.0.1:8000/api/auth/login";
+const API_URL = "http://127.0.0.1:8001/api/auth/login";
 
 
 function mostrarMensaje(texto, tipo) {
