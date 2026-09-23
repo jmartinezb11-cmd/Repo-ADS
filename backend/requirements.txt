@@ -4,3 +4,5 @@ psycopg2-binary
 python-dotenv
 pwdlib[argon2]
 email-validator
+pytest
+httpx2
