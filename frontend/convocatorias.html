@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Convocatorias Disponibles - Sistema de Becas</title>
+  <link rel="stylesheet" href="css/styles.css">
+  <link rel="stylesheet" href="css/convocatorias.css">
+</head>
+<body>
+  <div class="container">
+    <header class="header">
+      <div>
+        <h2>Convocatorias Disponibles</h2>
+        <p class="subtitle">Consulta los programas de becas vigentes y sus requisitos.</p>
+      </div>
+      <a href="index.html" class="btn-secondary">Volver al Inicio</a>
+    </header>
+
+    <div id="alert-box" class="alert hidden"></div>
+
+    <section id="lista-convocatorias" class="cards-grid">
+      <!-- Se inyectan las tarjetas dinámicamente -->
+    </section>
+
+    <!-- Modal para ver detalles -->
+    <div id="modal-detalle" class="modal hidden">
+      <div class="modal-content">
+        <span class="close-btn" id="btn-cerrar-modal">&times;</span>
+        <h3 id="modal-titulo"></h3>
+        <p><strong>Estado:</strong> <span id="modal-estado" class="badge"></span></p>
+        <p><strong>Vigencia:</strong> <span id="modal-fechas"></span></p>
+        <p><strong>Descripción:</strong></p>
+        <p id="modal-descripcion"></p>
+        <p><strong>Requisitos:</strong></p>
+        <div id="modal-requisitos"></div>
+        <div class="modal-actions">
+          <button type="button" class="btn-primary" id="btn-solicitar" disabled title="Habilitado en US-010">Solicitar Beca</button>
+          <button type="button" class="btn-secondary" id="btn-volver-modal">Cerrar</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script src="js/convocatorias.js"></script>
+</body>
+</html>
