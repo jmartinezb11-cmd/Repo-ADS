@@ -23,3 +23,6 @@ def health():
 
 from app.api import roles_demo
 app.include_router(roles_demo.router)
+
+from app.api import convocatorias
+app.include_router(convocatorias.router)
