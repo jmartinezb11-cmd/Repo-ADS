@@ -1,13 +1,10 @@
-from app.core.security import verify_password
+from app.core.security import verify_password, crear_token
 
 from app.repositories.estudiante_repository import (
     obtener_estudiante_por_email
 )
 
 
-# Mensaje genérico a propósito: nunca se debe indicar si falló
-# el email o la contraseña, para no darle pistas a un atacante
-# sobre qué correos existen registrados (US-029).
 MENSAJE_CREDENCIALES_INVALIDAS = "Correo o contraseña incorrectos."
 
 
@@ -30,12 +27,15 @@ def login_estudiante(email: str, password: str) -> dict:
         f"{estudiante['primer_nombre']} {estudiante['primer_apellido']}"
     )
 
+    token = crear_token(
+        id_estudiante=estudiante["id_estudiante"],
+        rol=estudiante["rol"]
+    )
+
     return {
+        "token": token,
         "id_estudiante": estudiante["id_estudiante"],
         "nombre_completo": nombre_completo,
         "email": estudiante["email"],
-        # Por ahora todo registro es de rol "estudiante", ya que el
-        # sistema todavía no tiene un mecanismo de roles en la base
-        # de datos (pendiente de definir en US-028 con Pablo).
-        "rol": "estudiante"
+        "rol": estudiante["rol"]
     }

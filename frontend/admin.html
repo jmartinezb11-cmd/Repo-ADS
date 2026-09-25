@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>Gestión de usuarios</title>
+
+    <link rel="stylesheet" href="css/styles.css">
+    <link rel="stylesheet" href="css/admin.css">
+</head>
+
+<body>
+
+    <div class="contenedor contenedor-admin">
+
+        <h1>Gestión de usuarios</h1>
+
+        <p class="subtitulo">
+            Panel de administración — Sistema de Gestión de Becas
+        </p>
+
+        <p id="mensaje" class="mensaje"></p>
+
+        <table class="tabla-usuarios">
+            <thead>
+                <tr>
+                    <th>Nombre</th>
+                    <th>Correo</th>
+                    <th>Rol</th>
+                    <th>Estado</th>
+                    <th>Acciones</th>
+                </tr>
+            </thead>
+
+            <tbody id="cuerpoTabla">
+                <tr>
+                    <td colspan="5" class="cargando">Cargando usuarios...</td>
+                </tr>
+            </tbody>
+        </table>
+
+    </div>
+
+    <script src="js/admin.js"></script>
+</body>
+</html>
