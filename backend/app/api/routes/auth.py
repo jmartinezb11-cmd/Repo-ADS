@@ -21,6 +21,7 @@ def login(data: LoginRequest):
 
         return {
             "mensaje": "Inicio de sesión exitoso",
+            "token": resultado["token"],
             "id_estudiante": resultado["id_estudiante"],
             "nombre_completo": resultado["nombre_completo"],
             "email": resultado["email"],
