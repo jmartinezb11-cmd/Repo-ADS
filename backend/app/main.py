@@ -3,7 +3,7 @@ from fastapi.middleware.cors import CORSMiddleware
 
 from app.api.routes.estudiantes import router as estudiantes_router 
 from app.api.routes.auth import router as auth_router
-
+from app.api.routes.convocatorias import router as convocatorias_router
 
 app = FastAPI(
     title="Sistema de Gestión de Becas",
@@ -23,6 +23,7 @@ app.add_middleware(
 
 app.include_router(estudiantes_router)
 app.include_router(auth_router)
+app.include_router(convocatorias_router)
 
 
 @app.get("/")
