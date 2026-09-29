@@ -264,7 +264,8 @@ def obtener_estudiante_por_email(email: str) -> dict | None:
                 primer_apellido,
                 email,
                 password_hash,
-                estado_cuenta
+                estado_cuenta,
+                rol
             FROM estudiantes
             WHERE email = %s
             LIMIT 1
@@ -283,8 +284,122 @@ def obtener_estudiante_por_email(email: str) -> dict | None:
             "primer_apellido": fila[2],
             "email": fila[3],
             "password_hash": fila[4],
-            "estado_cuenta": fila[5]
+            "estado_cuenta": fila[5],
+            "rol": fila[6]
         }
+
+    finally:
+        if cursor:
+            cursor.close()
+
+        connection.close()
+
+
+def obtener_estudiante_por_id(id_estudiante: int) -> dict | None:
+    connection = get_connection()
+    cursor = None
+
+    try:
+        cursor = connection.cursor()
+
+        cursor.execute(
+            """
+            SELECT
+                id_estudiante,
+                primer_nombre,
+                primer_apellido,
+                email,
+                estado_cuenta,
+                rol
+            FROM estudiantes
+            WHERE id_estudiante = %s
+            LIMIT 1
+            """,
+            (id_estudiante,)
+        )
+
+        fila = cursor.fetchone()
+
+        if fila is None:
+            return None
+
+        return {
+            "id_estudiante": fila[0],
+            "primer_nombre": fila[1],
+            "primer_apellido": fila[2],
+            "email": fila[3],
+            "estado_cuenta": fila[4],
+            "rol": fila[5]
+        }
+
+    finally:
+        if cursor:
+            cursor.close()
+
+        connection.close()
+
+
+def listar_estudiantes() -> list[dict]:
+    connection = get_connection()
+    cursor = None
+
+    try:
+        cursor = connection.cursor()
+
+        cursor.execute(
+            """
+            SELECT
+                id_estudiante,
+                primer_nombre,
+                primer_apellido,
+                email,
+                estado_cuenta,
+                rol
+            FROM estudiantes
+            ORDER BY primer_nombre, primer_apellido
+            """
+        )
+
+        filas = cursor.fetchall()
+
+        return [
+            {
+                "id_estudiante": fila[0],
+                "primer_nombre": fila[1],
+                "primer_apellido": fila[2],
+                "email": fila[3],
+                "estado_cuenta": fila[4],
+                "rol": fila[5]
+            }
+            for fila in filas
+        ]
+
+    finally:
+        if cursor:
+            cursor.close()
+
+        connection.close()
+
+
+def actualizar_estado_cuenta(id_estudiante: int, nuevo_estado: str) -> bool:
+    connection = get_connection()
+    cursor = None
+
+    try:
+        cursor = connection.cursor()
+
+        cursor.execute(
+            """
+            UPDATE estudiantes
+            SET estado_cuenta = %s
+            WHERE id_estudiante = %s
+            """,
+            (nuevo_estado, id_estudiante)
+        )
+
+        connection.commit()
+
+        return cursor.rowcount > 0
 
     finally:
         if cursor:
