@@ -60,6 +60,18 @@ formulario.addEventListener("submit", async function (event) {
     };
 
     try {
+        const token =
+            localStorage.getItem("token") ||
+            localStorage.getItem("access_token");
+
+        if (!token) {
+            mostrarMensaje(
+                "Debes iniciar sesión como administrador para crear una convocatoria.",
+                "error"
+            );
+            return;
+        }
+
         boton.disabled = true;
         boton.textContent = "Creando...";
 
@@ -67,7 +79,8 @@ formulario.addEventListener("submit", async function (event) {
             method: "POST",
 
             headers: {
-                "Content-Type": "application/json"
+                "Content-Type": "application/json",
+                "Authorization": `Bearer ${token}`
             },
 
             body: JSON.stringify(datos)

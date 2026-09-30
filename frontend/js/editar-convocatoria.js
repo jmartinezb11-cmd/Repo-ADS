@@ -1,83 +1,309 @@
 const API_URL = "http://127.0.0.1:8001/api/convocatorias";
 
-// Mock de convocatoria para trabajar en paralelo respetando US-005
-let convocatoriaActual = {
-  id_convocatoria: 1,
-  titulo: "Beca Universitaria de Grado 2026",
-  descripcion: "Programa de apoyo económico para estudiantes universitarios con rendimiento destacado.",
-  fecha_inicio: "2026-02-01",
-  fecha_fin: "2026-03-15",
-  requisitos: "Promedio mínimo de 85 puntos, constancia de inscripción activa, no contar con otra beca.",
-  estado: "borrador"
-};
-
 const form = document.getElementById("form-editar-convocatoria");
 const alertBox = document.getElementById("alert-box");
 const btnCancelar = document.getElementById("btn-cancelar");
+const btnGuardar = document.getElementById("btn-guardar");
+
+let convocatoriaActual = null;
+
+// Mostrar mensajes
 
 function mostrarMensaje(texto, tipo) {
-  alertBox.className = `alert alert-${tipo}`;
-  alertBox.textContent = texto;
-  alertBox.classList.remove("hidden");
-  setTimeout(() => alertBox.classList.add("hidden"), 4000);
+    alertBox.className = `alert alert-${tipo}`;
+    alertBox.textContent = texto;
+    alertBox.classList.remove("hidden");
 }
+
+// Obtener ID desde la URL
+// Ejemplo:
+// editar-convocatoria.html?id=3
+
+function obtenerIdConvocatoria() {
+    const parametros = new URLSearchParams(window.location.search);
+    return parametros.get("id");
+}
+// Obtener token JWT
+
+function obtenerToken() {
+    return (
+        localStorage.getItem("access_token") ||
+        localStorage.getItem("token")
+    );
+}
+// Cargar datos en formulario
 
 function cargarFormulario(datos) {
-  document.getElementById("id_convocatoria").value = datos.id_convocatoria;
-  document.getElementById("titulo").value = datos.titulo;
-  document.getElementById("descripcion").value = datos.descripcion;
-  document.getElementById("fecha_inicio").value = datos.fecha_inicio;
-  document.getElementById("fecha_fin").value = datos.fecha_fin;
-  document.getElementById("requisitos").value = datos.requisitos;
-  document.getElementById("estado").value = datos.estado;
+
+    document.getElementById("id_convocatoria").value =
+        datos.id_convocatoria;
+
+    document.getElementById("titulo").value =
+        datos.titulo;
+
+    document.getElementById("descripcion").value =
+        datos.descripcion;
+
+    document.getElementById("tipo_beca").value =
+        datos.tipo_beca;
+
+    document.getElementById("institucion").value =
+        datos.institucion;
+
+    document.getElementById("fecha_apertura").value =
+        datos.fecha_apertura;
+
+    document.getElementById("fecha_cierre").value =
+        datos.fecha_cierre;
+
+    document.getElementById("nivel_educativo").value =
+        datos.nivel_educativo;
+
+    document.getElementById("requisitos").value =
+        datos.requisitos;
+
+    document.getElementById("monto_beneficio").value =
+        datos.monto_beneficio ?? "";
+
+    document.getElementById("cupos_disponibles").value =
+        datos.cupos_disponibles ?? "";
+
+    document.getElementById("estado").value =
+        datos.estado;
+}
+// Consultar convocatoria real
+
+async function cargarConvocatoria() {
+
+    const id = obtenerIdConvocatoria();
+
+    if (!id) {
+        mostrarMensaje(
+            "No se indicó el ID de la convocatoria.",
+            "error"
+        );
+
+        btnGuardar.disabled = true;
+        return;
+    }
+
+    try {
+
+        const respuesta = await fetch(
+            `${API_URL}/${id}`
+        );
+
+        if (!respuesta.ok) {
+
+            if (respuesta.status === 404) {
+                throw new Error(
+                    "La convocatoria no existe."
+                );
+            }
+
+            throw new Error(
+                `Error al consultar la convocatoria (${respuesta.status}).`
+            );
+        }
+
+        convocatoriaActual = await respuesta.json();
+
+        cargarFormulario(convocatoriaActual);
+
+        // Una convocatoria publicada o cerrada
+        // ya no puede editarse.
+        if (convocatoriaActual.estado !== "borrador") {
+
+            btnGuardar.disabled = true;
+
+            mostrarMensaje(
+                `La convocatoria está en estado "${convocatoriaActual.estado}" y ya no puede editarse.`,
+                "error"
+            );
+        }
+
+    } catch (error) {
+
+        console.error(error);
+
+        mostrarMensaje(
+            error.message,
+            "error"
+        );
+
+        btnGuardar.disabled = true;
+    }
 }
 
-form.addEventListener("submit", async (e) => {
-  e.preventDefault();
+// Guardar cambios
 
-  const fechaInicio = new Date(document.getElementById("fecha_inicio").value);
-  const fechaFin = new Date(document.getElementById("fecha_fin").value);
+form.addEventListener("submit", async (event) => {
 
-  // Validación: la fecha final debe ser posterior a la de inicio
-  if (fechaFin <= fechaInicio) {
-    mostrarMensaje("La fecha de finalización debe ser posterior a la fecha de inicio.", "error");
-    return;
-  }
+    event.preventDefault();
 
-  const formData = new FormData(form);
-  const datosModificados = Object.fromEntries(formData.entries());
-
-  try {
-    const token = localStorage.getItem("token") || localStorage.getItem("access_token");
-
-    const respuesta = await fetch(`${API_URL}/${datosModificados.id_convocatoria}`, {
-      method: "PUT",
-      headers: {
-        "Content-Type": "application/json",
-        ...(token ? { "Authorization": `Bearer ${token}` } : {})
-      },
-      body: JSON.stringify(datosModificados)
-    });
-
-    if (respuesta.ok) {
-      convocatoriaActual = { ...convocatoriaActual, ...datosModificados };
-      mostrarMensaje("Convocatoria actualizada con éxito en el servidor.", "success");
-    } else {
-      // Modo Mock mientras US-005 concluye en backend
-      convocatoriaActual = { ...convocatoriaActual, ...datosModificados };
-      mostrarMensaje("Cambios guardados localmente (Modo Mock / Integración US-005 pendiente).", "success");
+    if (!convocatoriaActual) {
+        mostrarMensaje(
+            "No hay una convocatoria cargada.",
+            "error"
+        );
+        return;
     }
-  } catch (error) {
-    convocatoriaActual = { ...convocatoriaActual, ...datosModificados };
-    mostrarMensaje("Cambios guardados localmente (Modo Mock).", "success");
-  }
+
+    const fechaApertura =
+        document.getElementById("fecha_apertura").value;
+
+    const fechaCierre =
+        document.getElementById("fecha_cierre").value;
+
+    if (fechaCierre <= fechaApertura) {
+
+        mostrarMensaje(
+            "La fecha de cierre debe ser posterior a la fecha de apertura.",
+            "error"
+        );
+
+        return;
+    }
+
+    const token = obtenerToken();
+
+    if (!token) {
+
+        mostrarMensaje(
+            "Debes iniciar sesión como administrador para editar una convocatoria.",
+            "error"
+        );
+
+        return;
+    }
+
+    const monto =
+        document.getElementById("monto_beneficio").value;
+
+    const cupos =
+        document.getElementById("cupos_disponibles").value;
+
+    const datosModificados = {
+
+        titulo:
+            document.getElementById("titulo").value.trim(),
+
+        descripcion:
+            document.getElementById("descripcion").value.trim(),
+
+        tipo_beca:
+            document.getElementById("tipo_beca").value.trim(),
+
+        institucion:
+            document.getElementById("institucion").value.trim(),
+
+        fecha_apertura:
+            fechaApertura,
+
+        fecha_cierre:
+            fechaCierre,
+
+        nivel_educativo:
+            document.getElementById("nivel_educativo").value.trim(),
+
+        requisitos:
+            document.getElementById("requisitos").value.trim(),
+
+        monto_beneficio:
+            monto === "" ? null : Number(monto),
+
+        cupos_disponibles:
+            cupos === "" ? null : Number(cupos)
+    };
+
+
+    try {
+
+        btnGuardar.disabled = true;
+
+        const respuesta = await fetch(
+            `${API_URL}/${convocatoriaActual.id_convocatoria}`,
+            {
+                method: "PUT",
+
+                headers: {
+                    "Content-Type": "application/json",
+                    "Authorization": `Bearer ${token}`
+                },
+
+                body: JSON.stringify(datosModificados)
+            }
+        );
+
+
+        const resultado = await respuesta.json();
+
+
+        if (!respuesta.ok) {
+
+            let mensaje = "No se pudo actualizar la convocatoria.";
+
+            if (resultado.detail) {
+
+                if (typeof resultado.detail === "string") {
+                    mensaje = resultado.detail;
+                } else {
+                    mensaje = JSON.stringify(resultado.detail);
+                }
+            }
+
+            throw new Error(mensaje);
+        }
+
+
+        convocatoriaActual = resultado.convocatoria;
+
+        cargarFormulario(convocatoriaActual);
+
+        mostrarMensaje(
+            "Convocatoria actualizada correctamente.",
+            "success"
+        );
+
+    } catch (error) {
+
+        console.error(error);
+
+        mostrarMensaje(
+            error.message,
+            "error"
+        );
+
+    } finally {
+
+        if (
+            convocatoriaActual &&
+            convocatoriaActual.estado === "borrador"
+        ) {
+            btnGuardar.disabled = false;
+        }
+    }
 });
+
+// Cancelar cambios
 
 btnCancelar.addEventListener("click", () => {
-  cargarFormulario(convocatoriaActual);
-  mostrarMensaje("Cambios descartados. Se restauraron los datos iniciales.", "error");
+
+    if (!convocatoriaActual) {
+        return;
+    }
+
+    cargarFormulario(convocatoriaActual);
+
+    mostrarMensaje(
+        "Cambios descartados.",
+        "error"
+    );
 });
 
-document.addEventListener("DOMContentLoaded", () => {
-  cargarFormulario(convocatoriaActual);
-});
+// Inicio
+
+document.addEventListener(
+    "DOMContentLoaded",
+    cargarConvocatoria
+);

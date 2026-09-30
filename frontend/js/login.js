@@ -33,27 +33,59 @@ if (formLogin) {
 
       const resultado = await respuesta.json();
 
-      if (respuesta.ok) {
-        mostrarMensaje("Inicio de sesión exitoso. Redirigiendo...", "exito");
+       if (respuesta.ok) {
 
-        // Guarda el resultado que contiene id_estudiante: 1
-        sessionStorage.setItem("usuario", JSON.stringify(resultado));
+        if (!resultado.token) {
+          mostrarMensaje(
+            "El servidor inició sesión, pero no devolvió un token de acceso.",
+            "error"
+          );
+          return;
+        }
+
+        // Guardar JWT
+        localStorage.setItem("token", resultado.token);
+
+        // Guardar datos básicos del usuario
+        sessionStorage.setItem("usuario", JSON.stringify({
+          id_estudiante: resultado.id_estudiante,
+          nombre_completo: resultado.nombre_completo,
+          email: resultado.email,
+          rol: resultado.rol
+        }));
+
+        mostrarMensaje(
+          "Inicio de sesión exitoso. Redirigiendo...",
+          "exito"
+        );
 
         setTimeout(function () {
           window.location.href = "perfil.html";
         }, 600);
+
       } else {
+
         let textoError = "No fue posible iniciar sesión.";
+
         if (typeof resultado.detail === "string") {
           textoError = resultado.detail;
         } else if (Array.isArray(resultado.detail)) {
-          textoError = resultado.detail.map(error => error.msg).join(" ");
+          textoError = resultado.detail
+            .map(error => error.msg)
+            .join(" ");
         }
+
         mostrarMensaje(textoError, "error");
       }
+
     } catch (error) {
+
       console.error(error);
-      mostrarMensaje("No se pudo conectar con el servidor.", "error");
+
+      mostrarMensaje(
+        "No se pudo conectar con el servidor.",
+        "error"
+      );
     }
   });
 }
