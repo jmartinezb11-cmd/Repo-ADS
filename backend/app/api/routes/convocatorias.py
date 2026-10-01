@@ -1,8 +1,19 @@
-from fastapi import APIRouter, HTTPException
+from fastapi import APIRouter, Depends, HTTPException
 
+from app.core.deps import require_role
+from app.core.roles import Role
 from app.models.convocatoria import Convocatoria
-from app.schemas.convocatoria import ConvocatoriaCrear
-from app.services.convocatoria_service import registrar_convocatoria
+from app.schemas.convocatoria import (
+    ConvocatoriaCrear,
+    ConvocatoriaEditar,
+)
+from app.services.convocatoria_service import (
+    registrar_convocatoria,
+    listar_convocatorias,
+    buscar_convocatoria,
+    editar_convocatoria,
+    cambiar_estado_a_publicada,
+)
 
 
 router = APIRouter(
@@ -11,8 +22,14 @@ router = APIRouter(
 )
 
 
+
+# US-005 - Crear convocatoria
+
 @router.post("/", status_code=201)
-def crear(data: ConvocatoriaCrear):
+def crear(
+    data: ConvocatoriaCrear,
+    user: dict = Depends(require_role(Role.ADMINISTRADOR))
+):
     try:
         convocatoria = Convocatoria(
             titulo=data.titulo,
@@ -46,4 +63,101 @@ def crear(data: ConvocatoriaCrear):
         raise HTTPException(
             status_code=500,
             detail="Ocurrió un error al crear la convocatoria."
+        )
+
+
+
+# US-008 - Consultar convocatorias
+
+@router.get("/")
+def consultar_convocatorias():
+    try:
+        return listar_convocatorias()
+
+    except Exception:
+        raise HTTPException(
+            status_code=500,
+            detail="Ocurrió un error al consultar las convocatorias."
+        )
+
+
+@router.get("/{id_convocatoria}")
+def consultar_convocatoria(id_convocatoria: int):
+    try:
+        return buscar_convocatoria(id_convocatoria)
+
+    except ValueError as error:
+        raise HTTPException(
+            status_code=404,
+            detail=str(error)
+        )
+
+    except Exception:
+        raise HTTPException(
+            status_code=500,
+            detail="Ocurrió un error al consultar la convocatoria."
+        )
+
+
+
+# US-006 - Editar convocatoria
+
+@router.put("/{id_convocatoria}")
+def actualizar(
+    id_convocatoria: int,
+    data: ConvocatoriaEditar,
+    user: dict = Depends(require_role(Role.ADMINISTRADOR))
+):
+    try:
+        convocatoria = editar_convocatoria(
+            id_convocatoria,
+            data.model_dump()
+        )
+
+        return {
+            "mensaje": "Convocatoria actualizada correctamente",
+            "convocatoria": convocatoria
+        }
+
+    except ValueError as error:
+        raise HTTPException(
+            status_code=400,
+            detail=str(error)
+        )
+
+    except Exception:
+        raise HTTPException(
+            status_code=500,
+            detail="Ocurrió un error al actualizar la convocatoria."
+        )
+
+
+
+# US-007 - Publicar convocatoria
+
+@router.patch("/{id_convocatoria}/publicar")
+def publicar(
+    id_convocatoria: int,
+    user: dict = Depends(require_role(Role.ADMINISTRADOR))
+):
+    try:
+        convocatoria = cambiar_estado_a_publicada(
+            id_convocatoria
+        )
+
+        return {
+            "mensaje": "Convocatoria publicada correctamente",
+            "convocatoria": convocatoria
+        }
+
+    except ValueError as error:
+        raise HTTPException(
+            status_code=400,
+            detail=str(error)
+        )
+
+    except Exception:
+        raise HTTPException(
+            status_code=500,
+            detail="Ocurrió un error al publicar la convocatoria."
         )
