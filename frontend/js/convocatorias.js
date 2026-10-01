@@ -32,7 +32,11 @@ async function obtenerConvocatorias() {
     const respuesta = await fetch(`${API_URL}/`);
     if (respuesta.ok) {
       const datos = await respuesta.json();
-      return datos.filter(c => c.estado === "publicada");
+      if (esAdministrador()) {
+  return datos;
+}
+
+return datos.filter(c => c.estado === "publicada");
     }
   } catch (error) {
     console.warn("Backend no disponible. Utilizando datos mock.");
@@ -53,11 +57,16 @@ function renderizarTarjetas(convocatorias) {
     card.innerHTML = `
       <div>
         <h3 class="card-title">${item.titulo}</h3>
-        <span class="badge badge-publicada">${item.estado}</span>
-        <p class="fechas-info"><strong>Cierre:</strong> ${item.fecha_fin}</p>
+        <span class="badge badge-${item.estado}">${item.estado}</span>
+        <p class="fechas-info"><strong>Cierre:</strong> ${item.fecha_cierre}</p>
         <p class="card-desc">${item.descripcion}</p>
       </div>
       <button class="btn-primary" onclick="abrirDetalle(${item.id_convocatoria})">Ver Detalles</button>
+      ${esAdministrador() ? `
+  <button class="btn-secondary" onclick="confirmarCierre(${item.id_convocatoria}, '${item.titulo}')">
+    Cerrar convocatoria
+  </button>
+` : ""}
     `;
     contenedor.appendChild(card);
   });
@@ -70,7 +79,7 @@ window.abrirDetalle = async function(id) {
 
   document.getElementById("modal-titulo").textContent = conv.titulo;
   document.getElementById("modal-estado").textContent = conv.estado;
-  document.getElementById("modal-fechas").textContent = `Del ${conv.fecha_inicio} al ${conv.fecha_fin}`;
+  document.getElementById("modal-fechas").textContent = `Del ${conv.fecha_apertura} al ${conv.fecha_cierre}`;
   document.getElementById("modal-descripcion").textContent = conv.descripcion;
   document.getElementById("modal-requisitos").textContent = conv.requisitos;
 
@@ -88,3 +97,78 @@ document.addEventListener("DOMContentLoaded", async () => {
   const data = await obtenerConvocatorias();
   renderizarTarjetas(data);
 });
+
+// OJO: usa el mismo puerto que el resto del proyecto haya
+// acordado para el backend.
+const API_USUARIOS_URL = "http://127.0.0.1:8001/api/convocatorias";
+
+
+function esAdministrador() {
+  const datosUsuario = sessionStorage.getItem("usuario");
+
+  if (!datosUsuario) {
+    return false;
+  }
+
+  return JSON.parse(datosUsuario).rol === "administrador";
+}
+
+
+function obtenerToken() {
+  const datosUsuario = sessionStorage.getItem("usuario");
+
+  if (!datosUsuario) {
+    return null;
+  }
+
+  return JSON.parse(datosUsuario).token;
+}
+
+
+window.confirmarCierre = async function (idConvocatoria, titulo) {
+
+  const confirmado = window.confirm(
+    `¿Está seguro de cerrar la convocatoria "${titulo}"? ` +
+    "Esta acción no se puede deshacer."
+  );
+
+  if (!confirmado) {
+    return;
+  }
+
+  const token = obtenerToken();
+
+  if (!token) {
+    alert("Debes iniciar sesión como administrador.");
+    return;
+  }
+
+  try {
+
+    const respuesta = await fetch(
+      `${API_USUARIOS_URL}/${idConvocatoria}/cerrar`,
+      {
+        method: "PATCH",
+        headers: {
+          "Authorization": "Bearer " + token
+        }
+      }
+    );
+
+    const resultado = await respuesta.json();
+
+    if (respuesta.ok) {
+      alert(`"${resultado.titulo}" fue cerrada correctamente.`);
+
+      const data = await obtenerConvocatorias();
+      renderizarTarjetas(data);
+
+    } else {
+      alert(resultado.detail || "No fue posible cerrar la convocatoria.");
+    }
+
+  } catch (error) {
+    console.error(error);
+    alert("No se pudo conectar con el servidor.");
+  }
+};
