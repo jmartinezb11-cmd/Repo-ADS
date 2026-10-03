@@ -156,6 +156,84 @@ def obtener_convocatoria_por_id(
         connection.close()
 
 
+def listar_convocatorias() -> list[dict]:
+    connection = get_connection()
+    cursor = None
+
+    try:
+        cursor = connection.cursor()
+
+        cursor.execute(
+            """
+            SELECT
+                id_convocatoria,
+                titulo,
+                descripcion,
+                fecha_apertura,
+                fecha_cierre,
+                estado
+            FROM convocatorias
+            ORDER BY fecha_creacion DESC
+            """
+        )
+
+        filas = cursor.fetchall()
+
+        return [
+            {
+                "id_convocatoria": fila[0],
+                "titulo": fila[1],
+                "descripcion": fila[2],
+                "fecha_apertura": fila[3],
+                "fecha_cierre": fila[4],
+                "estado": fila[5]
+            }
+            for fila in filas
+        ]
+
+    finally:
+        if cursor:
+            cursor.close()
+
+        connection.close()
+
+
+def actualizar_estado_convocatoria(
+    id_convocatoria: int,
+    nuevo_estado: str
+) -> bool:
+    connection = get_connection()
+    cursor = None
+
+    try:
+        cursor = connection.cursor()
+
+        cursor.execute(
+            """
+            UPDATE convocatorias
+            SET
+                estado = %s,
+                fecha_ultima_actualizacion = CURRENT_TIMESTAMP
+            WHERE id_convocatoria = %s
+            """,
+            (nuevo_estado, id_convocatoria)
+        )
+
+        connection.commit()
+
+        return cursor.rowcount > 0
+
+    except Exception:
+        connection.rollback()
+        raise
+
+    finally:
+        if cursor:
+            cursor.close()
+
+        connection.close()
+
+
 # =========================================================
 # US-006 - Editar convocatoria
 # =========================================================

@@ -105,3 +105,14 @@
 .hidden {
   display: none !important;
 }
+
+
+.badge-borrador {
+    background: #fff3e0;
+    color: #e65100;
+}
+
+.badge-cerrada {
+    background: #ffebee;
+    color: #b71c1c;
+}
