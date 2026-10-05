@@ -5,6 +5,8 @@ from app.core.roles import Role
 from app.models.convocatoria import Convocatoria
 from app.schemas.convocatoria import (
     ConvocatoriaCrear,
+    ConvocatoriaResumen,
+    CerrarConvocatoriaResponse,
     ConvocatoriaEditar,
 )
 from app.services.convocatoria_service import (
@@ -13,6 +15,8 @@ from app.services.convocatoria_service import (
     buscar_convocatoria,
     editar_convocatoria,
     cambiar_estado_a_publicada,
+    cerrar_convocatoria,
+    obtener_todas_las_convocatorias,
 )
 
 
@@ -20,7 +24,6 @@ router = APIRouter(
     prefix="/api/convocatorias",
     tags=["Convocatorias"]
 )
-
 
 
 # US-005 - Crear convocatoria
@@ -66,13 +69,12 @@ def crear(
         )
 
 
-
 # US-008 - Consultar convocatorias
 
-@router.get("/")
-def consultar_convocatorias():
+@router.get("/", response_model=list[ConvocatoriaResumen])
+def listar():
     try:
-        return listar_convocatorias()
+        return obtener_todas_las_convocatorias()
 
     except Exception:
         raise HTTPException(
@@ -97,7 +99,6 @@ def consultar_convocatoria(id_convocatoria: int):
             status_code=500,
             detail="Ocurrió un error al consultar la convocatoria."
         )
-
 
 
 # US-006 - Editar convocatoria
@@ -132,7 +133,6 @@ def actualizar(
         )
 
 
-
 # US-007 - Publicar convocatoria
 
 @router.patch("/{id_convocatoria}/publicar")
@@ -160,4 +160,38 @@ def publicar(
         raise HTTPException(
             status_code=500,
             detail="Ocurrió un error al publicar la convocatoria."
+        )
+
+
+# US-009 - Cerrar convocatoria
+
+@router.patch(
+    "/{id_convocatoria}/cerrar",
+    response_model=CerrarConvocatoriaResponse
+)
+def cerrar(
+    id_convocatoria: int,
+    usuario_actual: dict = Depends(require_role(Role.ADMINISTRADOR))
+):
+    try:
+        resultado = cerrar_convocatoria(id_convocatoria)
+
+        return {
+            "mensaje": "Convocatoria cerrada correctamente",
+            "id_convocatoria": resultado["id_convocatoria"],
+            "titulo": resultado["titulo"],
+            "estado": resultado["estado"]
+        }
+
+    except ValueError as error:
+        detalle = str(error)
+
+        codigo = 404 if "no existe" in detalle else 400
+
+        raise HTTPException(status_code=codigo, detail=detalle)
+
+    except Exception:
+        raise HTTPException(
+            status_code=500,
+            detail="Ocurrió un error al cerrar la convocatoria."
         )

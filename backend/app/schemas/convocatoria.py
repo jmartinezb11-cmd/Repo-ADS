@@ -28,6 +28,23 @@ class ConvocatoriaCrear(BaseModel):
 
         return self
 
+
+class ConvocatoriaResumen(BaseModel):
+    id_convocatoria: int
+    titulo: str
+    descripcion: str
+    fecha_apertura: date
+    fecha_cierre: date
+    estado: str
+
+
+class CerrarConvocatoriaResponse(BaseModel):
+    mensaje: str
+    id_convocatoria: int
+    titulo: str
+    estado: str
+
+
 class ConvocatoriaEditar(BaseModel):
     titulo: str = Field(min_length=3, max_length=150)
     descripcion: str = Field(min_length=10)

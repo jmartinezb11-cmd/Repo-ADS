@@ -5,8 +5,8 @@ from app.repositories.convocatoria_repository import (
     obtener_convocatoria_por_id,
     actualizar_convocatoria,
     publicar_convocatoria,
+    actualizar_estado_convocatoria,
 )
-
 
 
 # US-005 - Crear convocatoria
@@ -38,7 +38,6 @@ def registrar_convocatoria(convocatoria: Convocatoria) -> int:
     return crear_convocatoria(convocatoria)
 
 
-
 # US-008 - Consultar convocatorias
 
 def listar_convocatorias() -> list:
@@ -52,7 +51,6 @@ def buscar_convocatoria(id_convocatoria: int) -> dict:
         raise ValueError("Convocatoria no encontrada.")
 
     return convocatoria
-
 
 
 # US-006 - Editar convocatoria
@@ -85,7 +83,6 @@ def editar_convocatoria(
     return obtener_convocatoria_por_id(id_convocatoria)
 
 
-
 # US-007 - Publicar convocatoria
 
 def cambiar_estado_a_publicada(
@@ -111,3 +108,38 @@ def cambiar_estado_a_publicada(
         )
 
     return publicada
+
+
+# US-009 - Cerrar convocatoria
+
+ESTADOS_VALIDOS_PARA_CERRAR = ["publicada"]
+
+
+def cerrar_convocatoria(id_convocatoria: int) -> dict:
+
+    convocatoria = obtener_convocatoria_por_id(id_convocatoria)
+
+    if convocatoria is None:
+        raise ValueError("La convocatoria no existe.")
+
+    if convocatoria["estado"] not in ESTADOS_VALIDOS_PARA_CERRAR:
+        raise ValueError(
+            "No se puede cerrar una convocatoria en estado "
+            f"'{convocatoria['estado']}'. Solo se pueden cerrar "
+            "convocatorias que estén 'publicada'."
+        )
+
+    actualizado = actualizar_estado_convocatoria(id_convocatoria, "cerrada")
+
+    if not actualizado:
+        raise ValueError("No fue posible cerrar la convocatoria.")
+
+    return {
+        "id_convocatoria": id_convocatoria,
+        "titulo": convocatoria["titulo"],
+        "estado": "cerrada"
+    }
+
+
+def obtener_todas_las_convocatorias() -> list[dict]:
+    return listar_convocatorias()
