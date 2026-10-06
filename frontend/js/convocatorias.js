@@ -26,6 +26,9 @@ const contenedor = document.getElementById("lista-convocatorias");
 const modal = document.getElementById("modal-detalle");
 const btnCerrarModal = document.getElementById("btn-cerrar-modal");
 const btnVolverModal = document.getElementById("btn-volver-modal");
+const btnSolicitar = document.getElementById("btn-solicitar");
+
+let convocatoriaSeleccionada = null;
 
 async function obtenerConvocatorias() {
   try {
@@ -77,6 +80,8 @@ window.abrirDetalle = async function(id) {
   const conv = convocatorias.find(c => c.id_convocatoria === id);
   if (!conv) return;
 
+  convocatoriaSeleccionada = conv.id_convocatoria;
+
   document.getElementById("modal-titulo").textContent = conv.titulo;
   document.getElementById("modal-estado").textContent = conv.estado;
   document.getElementById("modal-fechas").textContent = `Del ${conv.fecha_apertura} al ${conv.fecha_cierre}`;
@@ -92,6 +97,65 @@ function cerrarModal() {
 
 btnCerrarModal.addEventListener("click", cerrarModal);
 btnVolverModal.addEventListener("click", cerrarModal);
+
+btnSolicitar.addEventListener("click", async () => {
+  if (!convocatoriaSeleccionada) {
+    alert("No se ha seleccionado una convocatoria.");
+    return;
+  }
+
+  if (!esEstudiante()) {
+    alert("Debes iniciar sesión como estudiante para solicitar una beca.");
+    return;
+  }
+
+  const token = obtenerToken();
+
+  if (!token) {
+    alert("Debes iniciar sesión como estudiante para solicitar una beca.");
+    window.location.href = "login.html";
+    return;
+  }
+
+  try {
+    btnSolicitar.disabled = true;
+    btnSolicitar.textContent = "Creando solicitud...";
+
+    const respuesta = await fetch(
+      `http://127.0.0.1:8001/api/solicitudes/convocatoria/${convocatoriaSeleccionada}`,
+      {
+        method: "POST",
+        headers: {
+          "Authorization": `Bearer ${token}`
+        }
+      }
+    );
+
+    const resultado = await respuesta.json();
+
+    if (!respuesta.ok) {
+      alert(resultado.detail || "No fue posible crear la solicitud.");
+      return;
+    }
+
+    const idSolicitud = resultado.solicitud?.id_solicitud;
+
+    if (!idSolicitud) {
+      alert("La solicitud fue creada, pero no se recibió su identificador.");
+      return;
+    }
+
+    window.location.href =
+      `completar-solicitud.html?id=${idSolicitud}`;
+
+  } catch (error) {
+    console.error(error);
+    alert("No se pudo conectar con el servidor.");
+  } finally {
+    btnSolicitar.disabled = false;
+    btnSolicitar.textContent = "Solicitar Beca";
+  }
+});
 
 document.addEventListener("DOMContentLoaded", async () => {
   const data = await obtenerConvocatorias();
@@ -113,17 +177,23 @@ function esAdministrador() {
   return JSON.parse(datosUsuario).rol === "administrador";
 }
 
-
-function obtenerToken() {
+function esEstudiante() {
   const datosUsuario = sessionStorage.getItem("usuario");
 
   if (!datosUsuario) {
-    return null;
+    return false;
   }
 
-  return JSON.parse(datosUsuario).token;
+  try {
+    return JSON.parse(datosUsuario).rol === "estudiante";
+  } catch {
+    return false;
+  }
 }
 
+function obtenerToken() {
+  return localStorage.getItem("token");
+}
 
 window.confirmarCierre = async function (idConvocatoria, titulo) {
 
@@ -142,6 +212,11 @@ window.confirmarCierre = async function (idConvocatoria, titulo) {
     alert("Debes iniciar sesión como administrador.");
     return;
   }
+
+  if (!esEstudiante()) {
+  alert("Debes iniciar sesión como estudiante para solicitar una beca.");
+  return;
+}
 
   try {
 
