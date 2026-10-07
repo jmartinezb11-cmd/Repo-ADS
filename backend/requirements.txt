@@ -7,3 +7,4 @@ email-validator
 pyjwt
 pytest
 httpx2
+python-multipart
