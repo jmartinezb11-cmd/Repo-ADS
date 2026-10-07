@@ -49,3 +49,6 @@ app.include_router(roles_demo.router)
 from app.api.routes.solicitudes import router as solicitudes_router
 
 app.include_router(solicitudes_router)
+from app.api.routes.documentos import router as documentos_router
+
+app.include_router(documentos_router)
