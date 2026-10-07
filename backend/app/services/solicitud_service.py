@@ -7,6 +7,7 @@ from app.repositories.solicitud_repository import (
     existe_solicitud_duplicada,
     guardar_detalle_solicitud,
     obtener_detalle_solicitud,
+    obtener_solicitudes_por_estudiante,
 )
 
 from app.repositories.convocatoria_repository import obtener_convocatoria_por_id
@@ -89,3 +90,29 @@ def completar_solicitud(
     guardar_detalle_solicitud(detalle)
 
     return obtener_detalle_solicitud(id_solicitud)
+
+# US-013 - Consultar solicitudes
+def consultar_solicitudes_estudiante(id_estudiante: int) -> list[dict]:
+    return obtener_solicitudes_por_estudiante(id_estudiante)
+
+
+def consultar_solicitud(
+    id_solicitud: int,
+    id_estudiante: int
+) -> dict:
+    solicitud = obtener_solicitud_por_id(id_solicitud)
+
+    if solicitud is None:
+        raise ValueError("Solicitud no encontrada.")
+
+    if solicitud["id_estudiante"] != id_estudiante:
+        raise PermissionError(
+            "No tienes permiso para consultar esta solicitud."
+        )
+
+    detalle = obtener_detalle_solicitud(id_solicitud)
+
+    return {
+        "solicitud": solicitud,
+        "detalle": detalle
+    }

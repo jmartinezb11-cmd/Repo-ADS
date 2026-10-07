@@ -214,3 +214,42 @@ def obtener_detalle_solicitud(id_solicitud: int) -> dict | None:
     finally:
         cursor.close()
         connection.close()
+
+        # US-013 - Consultar solicitudes del estudiante
+def obtener_solicitudes_por_estudiante(id_estudiante: int) -> list[dict]:
+    connection = get_connection()
+    cursor = connection.cursor()
+
+    try:
+        query = """
+            SELECT
+                s.id_solicitud,
+                s.id_estudiante,
+                s.id_convocatoria,
+                c.titulo AS convocatoria,
+                s.estado,
+                s.fecha_creacion,
+                s.fecha_ultima_actualizacion
+            FROM solicitudes s
+            INNER JOIN convocatorias c
+                ON c.id_convocatoria = s.id_convocatoria
+            WHERE s.id_estudiante = %s
+            ORDER BY s.fecha_creacion DESC;
+        """
+
+        cursor.execute(query, (id_estudiante,))
+        filas = cursor.fetchall()
+
+        columnas = [
+            descripcion[0]
+            for descripcion in cursor.description
+        ]
+
+        return [
+            dict(zip(columnas, fila))
+            for fila in filas
+        ]
+
+    finally:
+        cursor.close()
+        connection.close()
