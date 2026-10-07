@@ -39,7 +39,6 @@ async function obtenerConvocatorias() {
     const res = await fetch(`${API_URL}/`);
     if (res.ok) {
       const data = await res.json();
-      // Filtrar solo las publicadas para los estudiantes
       return data.filter(c => c.estado?.toLowerCase() === "publicada");
     }
   } catch (error) {
@@ -48,11 +47,13 @@ async function obtenerConvocatorias() {
   return MOCK_CONVOCATORIAS;
 }
 
-// Pintar tarjetas en pantalla
+// Renderizar tarjetas en pantalla
 function renderizarTarjetas(lista) {
   convocatoriasCargadas = lista;
   contenedor.innerHTML = "";
-  contadorEl.textContent = `${lista.length} convocatoria(s) activa(s)`;
+  if (contadorEl) {
+    contadorEl.textContent = `${lista.length} convocatoria(s) activa(s)`;
+  }
 
   if (!lista.length) {
     contenedor.innerHTML = `
@@ -85,45 +86,54 @@ function renderizarTarjetas(lista) {
   });
 }
 
-// Abrir ventana modal con detalle
+// Abrir modal con detalle
 window.abrirDetalle = function(id) {
   const conv = convocatoriasCargadas.find(c => c.id_convocatoria === id);
   if (!conv) return;
 
   convocatoriaSeleccionada = conv;
 
-  document.getElementById("modal-titulo").textContent = conv.titulo;
-  document.getElementById("modal-estado").textContent = conv.estado;
-  document.getElementById("modal-estado").className = `badge badge-${conv.estado.toLowerCase()}`;
-  document.getElementById("modal-fechas").textContent = `Plazo: del ${conv.fecha_inicio} al ${conv.fecha_fin}`;
-  document.getElementById("modal-descripcion").textContent = conv.descripcion;
-
-  // Renderizar requisitos como lista con viñetas
+  const modalTitulo = document.getElementById("modal-titulo");
+  const modalEstado = document.getElementById("modal-estado");
+  const modalFechas = document.getElementById("modal-fechas");
+  const modalDesc = document.getElementById("modal-descripcion");
   const listaReq = document.getElementById("modal-requisitos");
-  const requisitosArray = conv.requisitos ? conv.requisitos.split(/;|\n/) : [];
-  listaReq.innerHTML = requisitosArray
-    .map(r => r.trim())
-    .filter(r => r.length > 0)
-    .map(r => `<li>${r}</li>`)
-    .join("");
 
-  modal.classList.remove("hidden");
+  if (modalTitulo) modalTitulo.textContent = conv.titulo;
+  if (modalEstado) {
+    modalEstado.textContent = conv.estado;
+    modalEstado.className = `badge badge-${conv.estado.toLowerCase()}`;
+  }
+  if (modalFechas) modalFechas.textContent = `Plazo: del ${conv.fecha_inicio} al ${conv.fecha_fin}`;
+  if (modalDesc) modalDesc.textContent = conv.descripcion;
+
+  if (listaReq) {
+    const requisitosArray = conv.requisitos ? conv.requisitos.split(/;|\n/) : [];
+    listaReq.innerHTML = requisitosArray
+      .map(r => r.trim())
+      .filter(r => r.length > 0)
+      .map(r => `<li>${r}</li>`)
+      .join("");
+  }
+
+  if (modal) modal.classList.remove("hidden");
 };
 
 function cerrarModal() {
-  modal.classList.add("hidden");
+  if (modal) modal.classList.add("hidden");
   convocatoriaSeleccionada = null;
 }
 
-btnCerrarModal.addEventListener("click", cerrarModal);
-btnVolverModal.addEventListener("click", cerrarModal);
+if (btnCerrarModal) btnCerrarModal.addEventListener("click", cerrarModal);
+if (btnVolverModal) btnVolverModal.addEventListener("click", cerrarModal);
 
-// Conexión con US-010 / US-011 (Completar solicitud)
-btnSolicitar.addEventListener("click", () => {
-  if (!convocatoriaSeleccionada) return;
-  // Redirigir a la vista de postulación pasando el ID de la convocatoria
-  window.location.href = `completar-solicitud.html?convocatoria_id=${convocatoriaSeleccionada.id_convocatoria}`;
-});
+// Redirigir a US-010 / US-011
+if (btnSolicitar) {
+  btnSolicitar.addEventListener("click", () => {
+    if (!convocatoriaSeleccionada) return;
+    window.location.href = `completar-solicitud.html?convocatoria_id=${convocatoriaSeleccionada.id_convocatoria}`;
+  });
+}
 
 document.addEventListener("DOMContentLoaded", async () => {
   const data = await obtenerConvocatorias();
