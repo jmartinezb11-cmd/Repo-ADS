@@ -2,6 +2,8 @@ from dataclasses import dataclass
 
 
 @dataclass
-class ResultadoValidacion:
-    estado_validacion: str  # "aprobado" o "rechazado"
-    comentario_validacion: str | None = None
+class Documento:
+    id_solicitud: int
+    nombre_archivo: str
+    tipo_archivo: str
+    ruta_archivo: str

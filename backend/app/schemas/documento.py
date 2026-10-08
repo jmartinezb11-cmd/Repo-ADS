@@ -1,6 +1,10 @@
+from datetime import datetime
 from pydantic import BaseModel
 
 
-class ValidarDocumento(BaseModel):
-    estado_validacion: str  # "aprobado" o "rechazado"
-    comentario_validacion: str | None = None
+class DocumentoRespuesta(BaseModel):
+    id_documento: int
+    id_solicitud: int
+    nombre_archivo: str
+    tipo_archivo: str
+    fecha_carga: datetime

@@ -1,26 +1,104 @@
-# --- MOCK temporal, mientras US-014 crea la tabla real "documentos" ---
-# Cuando esté lista, estas funciones se reemplazan por consultas psycopg2
-# reales, siguiendo el mismo patrón de convocatoria_repository.py
+from app.core.database import get_connection
+from app.models.documento import Documento
 
-from app.core.documentos_mock import DOCUMENTOS_DB
+
+def crear_documento(documento: Documento) -> int:
+    connection = get_connection()
+    cursor = connection.cursor()
+
+    try:
+        query = """
+            INSERT INTO documentos (
+                id_solicitud,
+                nombre_archivo,
+                tipo_archivo,
+                ruta_archivo
+            )
+            VALUES (%s, %s, %s, %s)
+            RETURNING id_documento;
+        """
+
+        cursor.execute(
+            query,
+            (
+                documento.id_solicitud,
+                documento.nombre_archivo,
+                documento.tipo_archivo,
+                documento.ruta_archivo,
+            ),
+        )
+
+        id_documento = cursor.fetchone()[0]
+
+        connection.commit()
+
+        return id_documento
+
+    except Exception:
+        connection.rollback()
+        raise
+
+    finally:
+        cursor.close()
+        connection.close()
+
+
+def listar_documentos_por_solicitud(id_solicitud: int) -> list[dict]:
+    connection = get_connection()
+    cursor = connection.cursor()
+
+    try:
+        query = """
+            SELECT
+                id_documento,
+                id_solicitud,
+                nombre_archivo,
+                tipo_archivo,
+                fecha_carga
+            FROM documentos
+            WHERE id_solicitud = %s
+            ORDER BY fecha_carga DESC;
+        """
+
+        cursor.execute(query, (id_solicitud,))
+        filas = cursor.fetchall()
+
+        columnas = [descripcion[0] for descripcion in cursor.description]
+
+        return [dict(zip(columnas, fila)) for fila in filas]
+
+    finally:
+        cursor.close()
+        connection.close()
 
 
 def obtener_documento_por_id(id_documento: int) -> dict | None:
-    return DOCUMENTOS_DB.get(id_documento)
+    connection = get_connection()
+    cursor = connection.cursor()
 
+    try:
+        query = """
+            SELECT
+                id_documento,
+                id_solicitud,
+                nombre_archivo,
+                tipo_archivo,
+                ruta_archivo,
+                fecha_carga
+            FROM documentos
+            WHERE id_documento = %s;
+        """
 
-def validar_documento(
-    id_documento: int,
-    estado_validacion: str,
-    comentario_validacion: str | None
-) -> dict | None:
+        cursor.execute(query, (id_documento,))
+        fila = cursor.fetchone()
 
-    documento = DOCUMENTOS_DB.get(id_documento)
+        if fila is None:
+            return None
 
-    if documento is None:
-        return None
+        columnas = [descripcion[0] for descripcion in cursor.description]
 
-    documento["estado_validacion"] = estado_validacion
-    documento["comentario_validacion"] = comentario_validacion
+        return dict(zip(columnas, fila))
 
-    return documento
+    finally:
+        cursor.close()
+        connection.close()
