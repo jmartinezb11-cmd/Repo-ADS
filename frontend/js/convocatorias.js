@@ -127,7 +127,7 @@ function cerrarModal() {
 if (btnCerrarModal) btnCerrarModal.addEventListener("click", cerrarModal);
 if (btnVolverModal) btnVolverModal.addEventListener("click", cerrarModal);
 
-// Redirigir a US-010 / US-011
+// Redirigir a completar solicitud
 if (btnSolicitar) {
   btnSolicitar.addEventListener("click", () => {
     if (!convocatoriaSeleccionada) return;

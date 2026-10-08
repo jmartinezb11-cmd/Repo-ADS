@@ -24,7 +24,7 @@ body {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
 }
 
 .header-info h2 {
@@ -127,6 +127,11 @@ body {
 .badge-cerrada {
   background-color: #fee2e2;
   color: #b91c1c;
+}
+
+.badge-borrador {
+  background: #fff3e0;
+  color: #e65100;
 }
 
 .card-desc {
@@ -280,15 +285,4 @@ body {
 
 .hidden {
   display: none !important;
-}
-
-
-.badge-borrador {
-    background: #fff3e0;
-    color: #e65100;
-}
-
-.badge-cerrada {
-    background: #ffebee;
-    color: #b71c1c;
 }
