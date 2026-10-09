@@ -1,0 +1,138 @@
+* {
+    box-sizing: border-box;
+}
+
+body {
+    margin: 0;
+    font-family: Arial, sans-serif;
+    background: #f4f6f8;
+    color: #1f2937;
+}
+
+.encabezado {
+    background: #ffffff;
+    padding: 24px 8%;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    border-bottom: 1px solid #e5e7eb;
+}
+
+.encabezado h1 {
+    margin: 0 0 6px;
+}
+
+.encabezado p {
+    margin: 0;
+    color: #64748b;
+}
+
+.contenedor {
+    width: 84%;
+    max-width: 900px;
+    margin: 30px auto;
+}
+
+.panel {
+    background: white;
+    padding: 24px;
+    margin-bottom: 20px;
+    border-radius: 8px;
+    border: 1px solid #e5e7eb;
+}
+
+.panel h2 {
+    margin-top: 0;
+    font-size: 18px;
+}
+
+select {
+    width: 100%;
+    padding: 10px;
+    border: 1px solid #cbd5e1;
+    border-radius: 6px;
+    font-size: 15px;
+}
+
+.btn-volver,
+.btn-principal {
+    display: inline-block;
+    padding: 10px 16px;
+    border: none;
+    border-radius: 6px;
+    background: #2563eb;
+    color: white;
+    text-decoration: none;
+    font-size: 15px;
+    cursor: pointer;
+}
+
+.btn-principal:disabled {
+    background: #94a3b8;
+    cursor: not-allowed;
+}
+
+.ayuda {
+    margin: 10px 0 16px;
+    color: #64748b;
+    font-size: 14px;
+}
+
+.tabla {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+.tabla th,
+.tabla td {
+    padding: 10px;
+    text-align: left;
+    border-bottom: 1px solid #e5e7eb;
+}
+
+.tabla th {
+    background: #f8fafc;
+    font-size: 14px;
+}
+
+.etiqueta {
+    display: inline-block;
+    padding: 3px 10px;
+    border-radius: 20px;
+    background: #e2e8f0;
+    font-size: 13px;
+    font-weight: bold;
+    text-transform: uppercase;
+}
+
+.mensaje {
+    padding: 14px;
+    margin-bottom: 20px;
+    border-radius: 6px;
+}
+
+.mensaje.error {
+    background: #fee2e2;
+    color: #991b1b;
+}
+
+.mensaje.exito {
+    background: #dcfce7;
+    color: #166534;
+}
+
+.oculto {
+    display: none;
+}
+
+@media (max-width: 700px) {
+    .encabezado {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 15px;
+    }
+
+    .contenedor {
+        width: 92%;
+    }
+}
