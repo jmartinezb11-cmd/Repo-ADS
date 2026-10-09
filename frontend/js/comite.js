@@ -9,7 +9,7 @@ async function consultarComite(idComite) {
     const infoEl = document.getElementById("comite-info");
 
     try {
-        const response = await fetch(`http://127.0.0.1:8000/api/comite/${idComite}`);
+        const response = await fetch(`http://127.0.0.1:8000/comite/${idComite}`);
         
         if (!response.ok) {
             throw new Error(`Error en la petición: ${response.status}`);
