@@ -1,5 +1,7 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
+from app.api.routes.comite_routes import router as comite_router
+
 
 from app.api.routes.estudiantes import router as estudiantes_router
 from app.api.routes.auth import router as auth_router
@@ -27,6 +29,7 @@ app.include_router(estudiantes_router)
 app.include_router(auth_router)
 app.include_router(usuarios_router)
 app.include_router(convocatorias_router)
+app.include_router(comite_router)
 
 
 @app.get("/")
