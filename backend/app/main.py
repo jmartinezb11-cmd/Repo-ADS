@@ -55,3 +55,6 @@ app.include_router(solicitudes_router)
 from app.api.routes.documentos import router as documentos_router
 
 app.include_router(documentos_router)
+from app.api.routes.evaluaciones import router as evaluaciones_router
+
+app.include_router(evaluaciones_router)
