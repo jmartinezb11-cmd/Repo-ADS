@@ -5,6 +5,8 @@ from app.repositories.evaluacion_repository import (
     obtener_evaluacion_por_id,
     existe_evaluacion,
     listar_evaluaciones_por_evaluador,
+    listar_solicitudes_por_estados,
+    listar_evaluadores_activos,
 )
 from app.repositories.solicitud_repository import obtener_solicitud_por_id
 
@@ -65,3 +67,11 @@ def asignar_evaluacion(
 
 def obtener_asignaciones_de_evaluador(id_evaluador: int) -> list[dict]:
     return listar_evaluaciones_por_evaluador(id_evaluador)
+
+
+def obtener_solicitudes_asignables() -> list[dict]:
+    return listar_solicitudes_por_estados(ESTADOS_ASIGNABLES)
+
+
+def obtener_evaluadores_disponibles() -> list[dict]:
+    return listar_evaluadores_activos()

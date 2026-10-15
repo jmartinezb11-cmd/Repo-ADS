@@ -124,3 +124,61 @@ def listar_evaluaciones_por_evaluador(id_evaluador: int) -> list[dict]:
     finally:
         cursor.close()
         connection.close()
+
+
+def listar_solicitudes_por_estados(estados: list[str]) -> list[dict]:
+    connection = get_connection()
+    cursor = connection.cursor()
+
+    try:
+        query = """
+            SELECT
+                s.id_solicitud,
+                e.primer_nombre || ' ' || e.primer_apellido AS estudiante,
+                c.titulo AS convocatoria,
+                s.estado
+            FROM solicitudes s
+            JOIN estudiantes e ON e.id_estudiante = s.id_estudiante
+            JOIN convocatorias c ON c.id_convocatoria = s.id_convocatoria
+            WHERE s.estado = ANY(%s)
+            ORDER BY s.fecha_creacion DESC;
+        """
+
+        cursor.execute(query, (estados,))
+        filas = cursor.fetchall()
+
+        columnas = [descripcion[0] for descripcion in cursor.description]
+
+        return [dict(zip(columnas, fila)) for fila in filas]
+
+    finally:
+        cursor.close()
+        connection.close()
+
+
+def listar_evaluadores_activos() -> list[dict]:
+    connection = get_connection()
+    cursor = connection.cursor()
+
+    try:
+        query = """
+            SELECT
+                id_estudiante AS id_evaluador,
+                primer_nombre || ' ' || primer_apellido AS nombre,
+                email
+            FROM estudiantes
+            WHERE rol = 'evaluador'
+              AND estado_cuenta <> 'inactivo'
+            ORDER BY primer_nombre, primer_apellido;
+        """
+
+        cursor.execute(query)
+        filas = cursor.fetchall()
+
+        columnas = [descripcion[0] for descripcion in cursor.description]
+
+        return [dict(zip(columnas, fila)) for fila in filas]
+
+    finally:
+        cursor.close()
+        connection.close()

@@ -23,3 +23,16 @@ class AsignacionEvaluador(BaseModel):
     convocatoria: str
     estado: str
     fecha_asignacion: datetime
+
+
+class SolicitudAsignable(BaseModel):
+    id_solicitud: int
+    estudiante: str
+    convocatoria: str
+    estado: str
+
+
+class EvaluadorDisponible(BaseModel):
+    id_evaluador: int
+    nombre: str
+    email: str

@@ -6,10 +6,14 @@ from app.schemas.evaluacion import (
     AsignarEvaluacionRequest,
     EvaluacionRespuesta,
     AsignacionEvaluador,
+    SolicitudAsignable,
+    EvaluadorDisponible,
 )
 from app.services.evaluacion_service import (
     asignar_evaluacion,
     obtener_asignaciones_de_evaluador,
+    obtener_solicitudes_asignables,
+    obtener_evaluadores_disponibles,
 )
 
 router = APIRouter(
@@ -60,4 +64,40 @@ def mis_asignaciones(
         raise HTTPException(
             status_code=500,
             detail="Ocurrió un error al consultar las asignaciones."
+        )
+
+
+# Datos para la pantalla de asignación (solo administrador)
+
+@router.get(
+    "/solicitudes",
+    response_model=list[SolicitudAsignable]
+)
+def solicitudes_asignables(
+    user: dict = Depends(require_role(Role.ADMINISTRADOR))
+):
+    try:
+        return obtener_solicitudes_asignables()
+
+    except Exception:
+        raise HTTPException(
+            status_code=500,
+            detail="Ocurrió un error al consultar las solicitudes."
+        )
+
+
+@router.get(
+    "/evaluadores",
+    response_model=list[EvaluadorDisponible]
+)
+def evaluadores_disponibles(
+    user: dict = Depends(require_role(Role.ADMINISTRADOR))
+):
+    try:
+        return obtener_evaluadores_disponibles()
+
+    except Exception:
+        raise HTTPException(
+            status_code=500,
+            detail="Ocurrió un error al consultar los evaluadores."
         )
