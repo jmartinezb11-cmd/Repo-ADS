@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mis Solicitudes</title>
+    <link rel="stylesheet" href="css/mis-solicitudes.css">
+</head>
+
+<body>
+
+    <header class="encabezado">
+        <div>
+            <h1>Mis Solicitudes</h1>
+            <p>Consulta el estado y la información de tus solicitudes.</p>
+        </div>
+
+        <a href="convocatorias.html" class="btn-volver">
+            Ver convocatorias
+        </a>
+    </header>
+
+    <main class="contenedor">
+
+        <div id="mensaje" class="mensaje oculto"></div>
+
+        <section>
+            <h2>Solicitudes registradas</h2>
+
+            <div id="lista-solicitudes" class="lista-solicitudes">
+                <p>Cargando solicitudes...</p>
+            </div>
+        </section>
+
+        <section id="seccion-detalle" class="detalle oculto">
+            <div class="detalle-encabezado">
+                <h2>Detalle de solicitud</h2>
+
+                <button id="btn-cerrar-detalle" type="button">
+                    Cerrar
+                </button>
+            </div>
+
+            <div id="contenido-detalle"></div>
+        </section>
+
+    </main>
+
+    <script src="js/mis-solicitudes.js"></script>
+</body>
+</html>

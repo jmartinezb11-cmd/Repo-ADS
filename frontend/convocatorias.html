@@ -9,36 +9,46 @@
 </head>
 <body>
   <div class="container">
-    <header class="header">
-      <div>
-        <h2>Convocatorias Disponibles</h2>
-        <p class="subtitle">Consulta los programas de becas vigentes y sus requisitos.</p>
+    <header class="header-banner">
+      <div class="header-info">
+        <h2>Convocatorias de Becas Disponibles</h2>
+        <p class="subtitle">Explora los programas de financiamiento vigentes y postúlate antes de la fecha límite.</p>
       </div>
-      <a href="index.html" class="btn-secondary">Volver al Inicio</a>
+      <a href="index.html" class="btn-volver">← Volver al Inicio</a>
     </header>
 
     <div id="alert-box" class="alert hidden"></div>
 
+    <div class="toolbar">
+      <span id="contador-convocatorias" class="contador">Cargando convocatorias...</span>
+    </div>
+
+    <!-- Contenedor dinámico de tarjetas -->
     <section id="lista-convocatorias" class="cards-grid">
-      <!-- Se inyectan las tarjetas dinámicamente -->
+      <!-- Se inyectan las tarjetas desde convocatorias.js -->
     </section>
 
-    <!-- Modal para ver detalles -->
-    <div id="modal-detalle" class="modal hidden">
-      <div class="modal-content">
-        <span class="close-btn" id="btn-cerrar-modal">&times;</span>
-        <h3 id="modal-titulo"></h3>
-        <p><strong>Estado:</strong> <span id="modal-estado" class="badge"></span></p>
-        <p><strong>Vigencia:</strong> <span id="modal-fechas"></span></p>
-        <p><strong>Descripción:</strong></p>
-        <p id="modal-descripcion"></p>
-        <p><strong>Requisitos:</strong></p>
-        <div id="modal-requisitos"></div>
+    <!-- Modal para ver detalles y requisitos completos -->
+    <div id="modal-detalle" class="modal-backdrop hidden">
+      <div class="modal-card">
+        <button type="button" class="modal-close" id="btn-cerrar-modal" aria-label="Cerrar">&times;</button>
+        <div class="modal-header">
+          <span id="modal-estado" class="badge"></span>
+          <h3 id="modal-titulo"></h3>
+          <p class="modal-vigencia" id="modal-fechas"></p>
+        </div>
+
+        <div class="modal-body">
+          <h4>Descripción del Programa</h4>
+          <p id="modal-descripcion"></p>
+
+          <h4>Requisitos Obligatorios</h4>
+          <ul id="modal-requisitos" class="requisitos-lista"></ul>
+        </div>
+
         <div class="modal-actions">
-        <button type="button" class="btn-primary" id="btn-solicitar">
-          Solicitar Beca
-        </button>
           <button type="button" class="btn-secondary" id="btn-volver-modal">Cerrar</button>
+          <button type="button" class="btn-primary" id="btn-solicitar">Solicitar Beca</button>
         </div>
       </div>
     </div>

@@ -87,3 +87,69 @@ def obtener_documentos_de_solicitud(
         )
 
     return listar_documentos_por_solicitud(id_solicitud)
+
+# =========================================================
+# US-016 - Validar documentación
+# =========================================================
+from app.repositories.documento_repository import (
+    listar_documentos_para_revision,
+    validar_documento,
+)
+
+ESTADOS_VALIDACION = ("aprobado", "rechazado")
+
+
+class RecursoNoEncontrado(Exception):
+    pass
+
+
+def procesar_validacion(
+    id_documento: int,
+    estado_validacion: str,
+    comentario_validacion: str | None,
+    id_validador: int
+) -> dict:
+
+    if estado_validacion not in ESTADOS_VALIDACION:
+        raise ValueError(
+            "El estado de validación debe ser 'aprobado' o 'rechazado'."
+        )
+
+    comentario = (comentario_validacion or "").strip() or None
+
+    if estado_validacion == "rechazado" and comentario is None:
+        raise ValueError("Debes indicar el motivo del rechazo.")
+
+    if obtener_documento_por_id(id_documento) is None:
+        raise RecursoNoEncontrado("Documento no encontrado.")
+
+    documento = validar_documento(
+        id_documento,
+        estado_validacion,
+        comentario,
+        id_validador
+    )
+
+    if documento is None:
+        raise ValueError("Este documento ya fue validado o rechazado.")
+
+    return documento
+
+
+def listar_para_revision(id_solicitud: int) -> list[dict]:
+    if obtener_solicitud_por_id(id_solicitud) is None:
+        raise RecursoNoEncontrado("La solicitud no existe.")
+
+    return listar_documentos_para_revision(id_solicitud)
+
+
+def obtener_ruta_archivo(id_documento: int) -> tuple[str, str]:
+    documento = obtener_documento_por_id(id_documento)
+
+    if documento is None:
+        raise RecursoNoEncontrado("Documento no encontrado.")
+
+    if not os.path.exists(documento["ruta_archivo"]):
+        raise RecursoNoEncontrado("El archivo no se encuentra en el servidor.")
+
+    return documento["ruta_archivo"], documento["nombre_archivo"]

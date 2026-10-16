@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Enviar Solicitud - Sistema de Becas</title>
+  <link rel="stylesheet" href="css/styles.css">
+  <link rel="stylesheet" href="css/enviar-solicitud.css">
+</head>
+<body>
+  <div class="container">
+    <header class="header">
+      <div>
+        <h2>Revisión y Envío Definitivo de Solicitud</h2>
+        <p class="subtitle">Verifica el estado de tus requisitos antes de formalizar la entrega.</p>
+      </div>
+      <a href="convocatorias.html" class="btn-secondary">Volver a Convocatorias</a>
+    </header>
+
+    <div id="alert-box" class="alert hidden"></div>
+
+    <section class="card-resumen">
+      <h3>Validación de Dependencias Previas</h3>
+      <ul class="checklist" id="checklist-requisitos">
+        <!-- Renderizado dinámico -->
+      </ul>
+    </section>
+
+    <section class="card-resumen">
+      <h3>Resumen del Expediente</h3>
+      <div class="detalle-grid">
+        <p><strong>ID Solicitud:</strong> <span id="info-id">Cargando...</span></p>
+        <p><strong>Convocatoria:</strong> <span id="info-convocatoria">Cargando...</span></p>
+        <p><strong>Estudiante:</strong> <span id="info-estudiante">Cargando...</span></p>
+        <p><strong>Estado Actual:</strong> <span id="info-estado" class="badge">BORRADOR</span></p>
+      </div>
+    </section>
+
+    <div class="form-actions">
+      <button type="button" class="btn-primary" id="btn-enviar-solicitud" disabled>Enviar Solicitud Definitiva</button>
+    </div>
+
+    <div id="modal-confirmacion" class="modal hidden">
+      <div class="modal-content">
+        <h3>¿Confirmar el envío definitivo?</h3>
+        <p>Una vez enviada la solicitud, <strong>quedará bloqueada</strong> y no podrás modificar los formularios ni los documentos adjuntos.</p>
+        <div class="modal-actions">
+          <button type="button" class="btn-secondary" id="btn-cancelar-modal">Cancelar</button>
+          <button type="button" class="btn-primary" id="btn-confirmar-envio">Confirmar Envío</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script src="js/enviar-solicitud.js"></script>
+</body>
+</html>

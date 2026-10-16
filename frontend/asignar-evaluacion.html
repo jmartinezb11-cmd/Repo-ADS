@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Asignar evaluación</title>
+    <link rel="stylesheet" href="css/asignar-evaluacion.css">
+</head>
+
+<body>
+
+    <header class="encabezado">
+        <div>
+            <h1>Asignar evaluación</h1>
+            <p>Asigna una solicitud a un evaluador para que la revise.</p>
+        </div>
+
+        <a href="perfil.html" class="btn-volver">
+            Volver al perfil
+        </a>
+    </header>
+
+    <main class="contenedor">
+
+        <div id="mensaje" class="mensaje oculto"></div>
+
+        <section class="panel">
+            <h2>Nueva asignación</h2>
+
+            <form id="form-asignar">
+
+                <label for="select-solicitud">Solicitud</label>
+                <select id="select-solicitud">
+                    <option value="">Cargando solicitudes...</option>
+                </select>
+
+                <label for="select-evaluador">Evaluador</label>
+                <select id="select-evaluador">
+                    <option value="">Cargando evaluadores...</option>
+                </select>
+
+                <p class="ayuda">
+                    Solo se muestran solicitudes pendientes o enviadas y
+                    usuarios con rol evaluador. Una solicitud puede tener
+                    varios evaluadores, pero no el mismo dos veces.
+                </p>
+
+                <button type="submit" id="btn-asignar" class="btn-principal">
+                    Asignar evaluación
+                </button>
+            </form>
+        </section>
+
+    </main>
+
+    <script src="js/asignar-evaluacion.js"></script>
+</body>
+</html>

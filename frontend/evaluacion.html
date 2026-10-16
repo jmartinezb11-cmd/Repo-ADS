@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Módulo de Evaluación y Observaciones - Sistema de Becas</title>
+  <link rel="stylesheet" href="css/styles.css">
+  <link rel="stylesheet" href="css/evaluacion.css">
+</head>
+<body>
+  <div class="container">
+    <header class="header-evaluacion">
+      <div>
+        <h2>Evaluación de Solicitud</h2>
+        <p class="subtitulo">Revisión de expediente y registro formal de observaciones.</p>
+      </div>
+      <a href="index.html" class="btn-secondary">← Volver al Inicio</a>
+    </header>
+
+    <div id="alert-box" class="alert hidden"></div>
+
+    <!-- US-020: Consulta del estado de la evaluación -->
+    <section class="card-detalle">
+      <div class="card-header-flex">
+        <h3>Detalles de la Evaluación (US-020)</h3>
+        <span id="badge-estado-eval" class="badge badge-pendiente">En Proceso</span>
+      </div>
+      <div class="grid-resumen">
+        <p><strong>ID Solicitud:</strong> <span id="eval-solicitud-id">--</span></p>
+        <p><strong>Estudiante:</strong> <span id="eval-estudiante">--</span></p>
+        <p><strong>Convocatoria:</strong> <span id="eval-convocatoria">--</span></p>
+        <p><strong>Puntaje Asignado:</strong> <span id="eval-puntaje">--</span> / 100</p>
+      </div>
+    </section>
+
+    <!-- Historial de observaciones -->
+    <section class="card-detalle">
+      <h3>Historial de Observaciones Registradas</h3>
+      <div id="lista-observaciones" class="contenedor-observaciones">
+        <!-- Inyección dinámica con JS -->
+      </div>
+    </section>
+
+    <!-- US-019: Registro de nuevas observaciones -->
+    <section class="card-detalle">
+      <h3>Registrar Nueva Observación (US-019)</h3>
+      <form id="form-observacion">
+        <div class="form-group">
+          <label for="tipo-obs">Tipo de Observación:</label>
+          <select id="tipo-obs" required>
+            <option value="GENERAL">General</option>
+            <option value="DOCUMENTACION">Documentación Incompleta / Ilegible</option>
+            <option value="SOCIOECONOMICO">Aclaración Socioeconómica</option>
+            <option value="ACADEMICO">Validación de Promedio</option>
+          </select>
+        </div>
+
+        <div class="form-group">
+          <label for="texto-obs">Detalle de la Observación:</label>
+          <textarea id="texto-obs" rows="4" placeholder="Escriba los comentarios o correcciones requeridas para el estudiante..." required></textarea>
+        </div>
+
+        <div class="acciones-form">
+          <button type="submit" class="btn-primary" id="btn-guardar-obs">Guardar Observación</button>
+        </div>
+      </form>
+    </section>
+  </div>
+
+  <script src="js/evaluacion.js"></script>
+</body>
+</html>

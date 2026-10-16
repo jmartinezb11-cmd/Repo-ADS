@@ -79,3 +79,86 @@ def consultar(
             status_code=500,
             detail="Ocurrió un error al consultar los documentos."
         )
+
+# US-016 - Validar documentación
+from fastapi.responses import FileResponse
+
+from app.schemas.documento import ValidarDocumento, DocumentoRevisionRespuesta
+from app.services.documento_service import (
+    RecursoNoEncontrado,
+    procesar_validacion,
+    listar_para_revision,
+    obtener_ruta_archivo,
+)
+
+
+@router.get(
+    "/revision/solicitud/{id_solicitud}",
+    response_model=list[DocumentoRevisionRespuesta]
+)
+def revisar(
+    id_solicitud: int,
+    user: dict = Depends(require_role(Role.EVALUADOR, Role.ADMINISTRADOR))
+):
+    try:
+        return listar_para_revision(id_solicitud)
+
+    except RecursoNoEncontrado as error:
+        raise HTTPException(status_code=404, detail=str(error))
+
+    except Exception:
+        raise HTTPException(
+            status_code=500,
+            detail="Ocurrió un error al consultar los documentos."
+        )
+
+
+@router.get("/{id_documento}/archivo")
+def descargar(
+    id_documento: int,
+    user: dict = Depends(require_role(Role.EVALUADOR, Role.ADMINISTRADOR))
+):
+    try:
+        ruta, nombre = obtener_ruta_archivo(id_documento)
+        return FileResponse(ruta, media_type="application/pdf", filename=nombre)
+
+    except RecursoNoEncontrado as error:
+        raise HTTPException(status_code=404, detail=str(error))
+
+    except Exception:
+        raise HTTPException(
+            status_code=500,
+            detail="Ocurrió un error al abrir el documento."
+        )
+
+
+@router.patch("/{id_documento}/validar")
+def validar(
+    id_documento: int,
+    data: ValidarDocumento,
+    user: dict = Depends(require_role(Role.EVALUADOR, Role.ADMINISTRADOR))
+):
+    try:
+        documento = procesar_validacion(
+            id_documento,
+            data.estado_validacion,
+            data.comentario_validacion,
+            user["id"]
+        )
+
+        return {
+            "mensaje": "Documento validado correctamente",
+            "documento": documento
+        }
+
+    except RecursoNoEncontrado as error:
+        raise HTTPException(status_code=404, detail=str(error))
+
+    except ValueError as error:
+        raise HTTPException(status_code=400, detail=str(error))
+
+    except Exception:
+        raise HTTPException(
+            status_code=500,
+            detail="Ocurrió un error al validar el documento."
+        )

@@ -5,6 +5,8 @@ from app.core.roles import Role
 from app.services.solicitud_service import (
     registrar_solicitud,
     completar_solicitud,
+    consultar_solicitudes_estudiante,
+    consultar_solicitud,
 )
 
 from app.schemas.solicitud import CompletarSolicitudRequest
@@ -78,4 +80,55 @@ def completar(
         raise HTTPException(
             status_code=500,
             detail="Ocurrió un error al completar la solicitud."
+        )
+
+    # US-013 - Consultar solicitudes
+
+@router.get("/mis-solicitudes")
+def listar_mis_solicitudes(
+    user: dict = Depends(require_role(Role.ESTUDIANTE))
+):
+    try:
+        solicitudes = consultar_solicitudes_estudiante(
+            id_estudiante=user["id"]
+        )
+
+        return {
+            "solicitudes": solicitudes
+        }
+
+    except Exception:
+        raise HTTPException(
+            status_code=500,
+            detail="Ocurrió un error al consultar las solicitudes."
+        )
+
+
+@router.get("/{id_solicitud}")
+def obtener_mi_solicitud(
+    id_solicitud: int,
+    user: dict = Depends(require_role(Role.ESTUDIANTE))
+):
+    try:
+        return consultar_solicitud(
+            id_solicitud=id_solicitud,
+            id_estudiante=user["id"]
+        )
+
+    except PermissionError as error:
+        raise HTTPException(
+            status_code=403,
+            detail=str(error)
+        )
+
+    except ValueError as error:
+        raise HTTPException(
+            status_code=404,
+            detail=str(error)
+        )
+
+    except Exception:
+        raise HTTPException(
+            status_code=500,
+            detail="Ocurrió un error al consultar la solicitud."
         )

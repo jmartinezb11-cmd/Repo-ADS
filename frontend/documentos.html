@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Documentos de mi solicitud</title>
+    <link rel="stylesheet" href="css/documentos.css">
+</head>
+
+<body>
+
+    <header class="encabezado">
+        <div>
+            <h1>Documentos de mi solicitud</h1>
+            <p>Sube tus documentos en PDF y consulta los que ya cargaste.</p>
+        </div>
+
+        <a href="mis-solicitudes.html" class="btn-volver">
+            Mis solicitudes
+        </a>
+    </header>
+
+    <main class="contenedor">
+
+        <div id="mensaje" class="mensaje oculto"></div>
+
+        <section class="panel">
+            <h2>1. Selecciona tu solicitud</h2>
+
+            <select id="select-solicitud">
+                <option value="">Cargando solicitudes...</option>
+            </select>
+        </section>
+
+        <section id="seccion-subir" class="panel oculto">
+            <h2>2. Cargar documento</h2>
+
+            <form id="form-subir">
+                <input
+                    type="file"
+                    id="input-archivo"
+                    accept=".pdf,application/pdf"
+                >
+
+                <p class="ayuda">
+                    Solo archivos PDF. Tamaño máximo: 5 MB.
+                </p>
+
+                <button type="submit" id="btn-subir" class="btn-principal">
+                    Subir documento
+                </button>
+            </form>
+        </section>
+
+        <section id="seccion-lista" class="panel oculto">
+            <h2>3. Documentos cargados</h2>
+
+            <div id="lista-documentos">
+                <p>Cargando documentos...</p>
+            </div>
+        </section>
+
+    </main>
+
+    <script src="js/documentos.js"></script>
+</body>
+</html>
