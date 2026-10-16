@@ -7,8 +7,13 @@ from app.repositories.evaluacion_repository import (
     listar_evaluaciones_por_evaluador,
     listar_solicitudes_por_estados,
     listar_evaluadores_activos,
+    obtener_resumen_solicitud,
+    registrar_resultado_evaluacion,
 )
-from app.repositories.solicitud_repository import obtener_solicitud_por_id
+from app.repositories.solicitud_repository import (
+    obtener_solicitud_por_id,
+    obtener_detalle_solicitud,
+)
 
 # Estados de solicitud en los que se permite asignar un evaluador.
 ESTADOS_ASIGNABLES = ["pendiente", "enviada"]
@@ -75,3 +80,59 @@ def obtener_solicitudes_asignables() -> list[dict]:
 
 def obtener_evaluadores_disponibles() -> list[dict]:
     return listar_evaluadores_activos()
+
+
+# US-018 - Evaluar solicitud
+
+def obtener_detalle_evaluacion(
+    id_evaluacion: int,
+    id_evaluador: int | None
+) -> dict:
+    # id_evaluador es None cuando consulta un administrador.
+    evaluacion = obtener_evaluacion_por_id(id_evaluacion)
+
+    if evaluacion is None:
+        raise ValueError("La evaluación no existe.")
+
+    if id_evaluador is not None and evaluacion["id_evaluador"] != id_evaluador:
+        raise PermissionError("Esta evaluación no está asignada a ti.")
+
+    return {
+        "evaluacion": evaluacion,
+        "solicitud": obtener_resumen_solicitud(evaluacion["id_solicitud"]),
+        "detalle": obtener_detalle_solicitud(evaluacion["id_solicitud"]),
+    }
+
+
+def evaluar_solicitud(
+    id_evaluacion: int,
+    id_evaluador: int,
+    puntaje: int,
+    recomendacion: str
+) -> dict:
+
+    evaluacion = obtener_evaluacion_por_id(id_evaluacion)
+
+    if evaluacion is None:
+        raise ValueError("La evaluación no existe.")
+
+    if evaluacion["id_evaluador"] != id_evaluador:
+        raise PermissionError("Esta evaluación no está asignada a ti.")
+
+    if evaluacion["estado"] != "asignada":
+        raise ValueError(
+            "Esta evaluación ya fue registrada y no se puede modificar."
+        )
+
+    registrada = registrar_resultado_evaluacion(
+        id_evaluacion=id_evaluacion,
+        puntaje=puntaje,
+        recomendacion=recomendacion,
+    )
+
+    if not registrada:
+        raise ValueError(
+            "Esta evaluación ya fue registrada y no se puede modificar."
+        )
+
+    return obtener_evaluacion_por_id(id_evaluacion)
