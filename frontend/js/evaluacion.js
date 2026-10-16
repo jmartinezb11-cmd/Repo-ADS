@@ -1,10 +1,10 @@
 const API_URL = "http://127.0.0.1:8001/api";
 
-// Datos simulados (Mock) para operar de forma autónoma
+// Datos simulados (Mock) para autonomía total mientras se integran los endpoints
 let mockEvaluacion = {
   id_solicitud: 1,
   estudiante: "Kenneth Alexander Vides García",
-  convocatoria: "Beca a la Excelencia Académica 2026",
+  convocatoria: "Beca Universitaria a la Excelencia Académica 2026",
   puntaje: 85,
   estado: "En Proceso",
   observaciones: [
@@ -27,13 +27,14 @@ const formObs = document.getElementById("form-observacion");
 const alertBox = document.getElementById("alert-box");
 
 function mostrarMensaje(texto, tipo = "success") {
+  if (!alertBox) return;
   alertBox.className = `alert alert-${tipo}`;
   alertBox.textContent = texto;
   alertBox.classList.remove("hidden");
   setTimeout(() => alertBox.classList.add("hidden"), 4000);
 }
 
-// US-020: Consultar y renderizar evaluación
+// US-020: Consultar y renderizar datos del expediente
 async function cargarEvaluacion() {
   const token = localStorage.getItem("token") || localStorage.getItem("access_token");
 
@@ -50,23 +51,29 @@ async function cargarEvaluacion() {
       return;
     }
   } catch (err) {
-    console.warn("Backend no disponible. Usando datos mock de evaluación.");
+    console.warn("Backend no disponible. Cargando datos mock unificados (US-019 / US-020).");
   }
 
   renderizarDatos(mockEvaluacion);
 }
 
 function renderizarDatos(datos) {
-  solicituIdEl.textContent = `#${datos.id_solicitud}`;
-  estudianteEl.textContent = datos.estudiante;
-  convocatoriaEl.textContent = datos.convocatoria;
-  puntajeEl.textContent = datos.puntaje;
-  badgeEstadoEl.textContent = datos.estado;
+  if (solicituIdEl) solicituIdEl.textContent = `#${datos.id_solicitud}`;
+  if (estudianteEl) estudianteEl.textContent = datos.estudiante;
+  if (convocatoriaEl) convocatoriaEl.textContent = datos.convocatoria;
+  if (puntajeEl) puntajeEl.textContent = datos.puntaje;
+  if (badgeEstadoEl) {
+    badgeEstadoEl.textContent = datos.estado;
+    badgeEstadoEl.className = datos.estado.toLowerCase() === "aprobada" 
+      ? "badge badge-evaluado" 
+      : "badge badge-pendiente";
+  }
 
   renderizarObservaciones(datos.observaciones || []);
 }
 
 function renderizarObservaciones(lista) {
+  if (!listaObsEl) return;
   listaObsEl.innerHTML = "";
 
   if (lista.length === 0) {
@@ -89,7 +96,7 @@ function renderizarObservaciones(lista) {
 }
 
 // US-019: Registrar nueva observación
-formObs.addEventListener("submit", async (e) => {
+formObs?.addEventListener("submit", async (e) => {
   e.preventDefault();
 
   const tipo = document.getElementById("tipo-obs").value;
@@ -116,15 +123,16 @@ formObs.addEventListener("submit", async (e) => {
     });
 
     if (res.ok) {
-      mostrarMensaje("Observación registrada con éxito en el backend.");
+      mostrarMensaje("Observación registrada con éxito en backend.");
       formObs.reset();
       cargarEvaluacion();
       return;
     }
   } catch (err) {
-    console.warn("Backend no disponible. Registrando observación en modo mock.");
+    console.warn("Backend no disponible. Guardando observación localmente en mock.");
   }
 
+  // Guardado local reactivo
   const nuevaObs = {
     id: mockEvaluacion.observaciones.length + 1,
     tipo: tipo,
@@ -135,7 +143,7 @@ formObs.addEventListener("submit", async (e) => {
   mockEvaluacion.observaciones.unshift(nuevaObs);
   renderizarObservaciones(mockEvaluacion.observaciones);
   formObs.reset();
-  mostrarMensaje("Observación agregada localmente (modo mock activo).");
+  mostrarMensaje("Observación agregada con éxito (Mock activo).");
 });
 
 document.addEventListener("DOMContentLoaded", cargarEvaluacion);
