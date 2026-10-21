@@ -58,3 +58,6 @@ app.include_router(documentos_router)
 from app.api.routes.evaluaciones import router as evaluaciones_router
 
 app.include_router(evaluaciones_router)
+from app.api.routes.reportes import router as reportes_router
+
+app.include_router(reportes_router)
