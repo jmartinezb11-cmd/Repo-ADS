@@ -1,9 +1,15 @@
-from app.repositories.decision_repository import registrar_decision
+from app.repositories.decision_repository import (
+    registrar_decision,
+    obtener_resumen_evaluaciones,
+)
 from app.repositories.solicitud_repository import obtener_solicitud_por_id
 
 # Estados en los que se puede aprobar o rechazar una solicitud.
-# Ajustar cuando US-018 (evaluar solicitud) defina su estado final.
+# La evaluación (US-018) no cambia el estado de la solicitud.
 ESTADOS_DECIDIBLES = ["enviada"]
+
+# Estado que deja US-018 en una evaluación ya registrada.
+ESTADO_EVALUACION_TERMINADA = "evaluada"
 
 DECISIONES = ("aprobada", "rechazada")
 
@@ -45,6 +51,23 @@ def procesar_decision(
             f"No se puede decidir una solicitud en estado "
             f"'{solicitud['estado']}'. Debe estar en: "
             f"{', '.join(ESTADOS_DECIDIBLES)}."
+        )
+
+    resumen = obtener_resumen_evaluaciones(
+        id_solicitud,
+        ESTADO_EVALUACION_TERMINADA
+    )
+
+    if resumen["total"] == 0:
+        raise ValueError(
+            "La solicitud todavía no tiene evaluaciones asignadas."
+        )
+
+    if resumen["evaluadas"] < resumen["total"]:
+        pendientes = resumen["total"] - resumen["evaluadas"]
+        raise ValueError(
+            f"Todavía hay {pendientes} evaluación(es) pendiente(s) "
+            f"de registrar."
         )
 
     resultado = registrar_decision(

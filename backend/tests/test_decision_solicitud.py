@@ -170,3 +170,57 @@ def test_cambio_de_estado_concurrente(monkeypatch):
 
     with pytest.raises(ValueError, match="cambió de estado"):
         decision_service.procesar_decision(1, "aprobada", None, 9)
+
+
+# ---------- Regla de US-018: solo se decide una solicitud evaluada ----------
+
+@pytest.fixture(autouse=True)
+def evaluaciones_completas_por_defecto(monkeypatch):
+    monkeypatch.setattr(
+        decision_service, "obtener_resumen_evaluaciones",
+        lambda id_solicitud, estado: {"total": 1, "evaluadas": 1}
+    )
+
+
+def _solicitud_enviada(monkeypatch):
+    monkeypatch.setattr(
+        decision_service, "obtener_solicitud_por_id",
+        lambda id_solicitud: {"id_solicitud": id_solicitud, "estado": "enviada"}
+    )
+
+
+def test_solicitud_sin_evaluaciones_no_se_decide(monkeypatch):
+    _solicitud_enviada(monkeypatch)
+    monkeypatch.setattr(
+        decision_service, "obtener_resumen_evaluaciones",
+        lambda id_solicitud, estado: {"total": 0, "evaluadas": 0}
+    )
+
+    with pytest.raises(ValueError, match="no tiene evaluaciones"):
+        decision_service.procesar_decision(1, "aprobada", None, 9)
+
+
+def test_evaluaciones_pendientes_bloquean_la_decision(monkeypatch):
+    _solicitud_enviada(monkeypatch)
+    monkeypatch.setattr(
+        decision_service, "obtener_resumen_evaluaciones",
+        lambda id_solicitud, estado: {"total": 2, "evaluadas": 1}
+    )
+
+    with pytest.raises(ValueError, match="pendiente"):
+        decision_service.procesar_decision(1, "aprobada", None, 9)
+
+
+def test_con_todas_las_evaluaciones_registradas_se_puede_aprobar(monkeypatch):
+    _solicitud_enviada(monkeypatch)
+    monkeypatch.setattr(
+        decision_service, "registrar_decision",
+        lambda id_solicitud, estado, comentario, id_decisor, permitidos: {
+            "id_solicitud": id_solicitud,
+            "estado": estado,
+        }
+    )
+
+    resultado = decision_service.procesar_decision(1, "aprobada", None, 9)
+
+    assert resultado["estado"] == "aprobada"
