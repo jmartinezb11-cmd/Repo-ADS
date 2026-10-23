@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Evaluar solicitudes</title>
+    <link rel="stylesheet" href="css/evaluar-solicitud.css">
+</head>
+
+<body>
+
+    <header class="encabezado">
+        <div>
+            <h1>Evaluar solicitudes</h1>
+            <p>Revisa las solicitudes que te asignaron y registra tu evaluación.</p>
+        </div>
+
+        <a href="perfil.html" class="btn-volver">
+            Volver al perfil
+        </a>
+    </header>
+
+    <main class="contenedor">
+
+        <div id="mensaje" class="mensaje oculto"></div>
+
+        <section class="panel">
+            <h2>Mis asignaciones</h2>
+
+            <div id="lista-asignaciones" class="lista-asignaciones">
+                <p>Cargando asignaciones...</p>
+            </div>
+        </section>
+
+        <section id="seccion-detalle" class="panel oculto">
+
+            <div class="detalle-encabezado">
+                <h2 id="titulo-detalle">Detalle de la solicitud</h2>
+
+                <button id="btn-cerrar-detalle" type="button" class="btn-secundario">
+                    Cerrar
+                </button>
+            </div>
+
+            <div id="resumen-solicitud" class="grupo"></div>
+
+            <div id="informacion-solicitud"></div>
+
+            <div class="grupo">
+                <h3>Documentos cargados</h3>
+                <div id="lista-documentos"></div>
+            </div>
+
+            <div class="grupo">
+                <h3>Evaluación</h3>
+
+                <div id="resultado-evaluacion" class="resultado oculto"></div>
+
+                <form id="form-evaluar">
+                    <label for="input-puntaje">Puntaje (0 a 100)</label>
+                    <input
+                        type="number"
+                        id="input-puntaje"
+                        min="0"
+                        max="100"
+                        step="1"
+                        placeholder="Ej: 85"
+                    >
+
+                    <label for="select-recomendacion">Recomendación</label>
+                    <select id="select-recomendacion">
+                        <option value="">-- Selecciona --</option>
+                        <option value="aprobar">Aprobar</option>
+                        <option value="rechazar">Rechazar</option>
+                    </select>
+
+                    <p class="ayuda">
+                        Una vez registrada, la evaluación no se puede modificar.
+                    </p>
+
+                    <button type="submit" id="btn-evaluar" class="btn-principal">
+                        Registrar evaluación
+                    </button>
+                </form>
+            </div>
+
+        </section>
+
+    </main>
+
+    <script src="js/evaluar-solicitud.js"></script>
+</body>
+</html>

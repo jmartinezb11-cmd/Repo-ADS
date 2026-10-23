@@ -53,7 +53,10 @@ def obtener_evaluacion_por_id(id_evaluacion: int) -> dict | None:
                 id_evaluador,
                 id_asignador,
                 estado,
-                fecha_asignacion
+                fecha_asignacion,
+                puntaje,
+                recomendacion,
+                fecha_evaluacion
             FROM evaluaciones
             WHERE id_evaluacion = %s;
         """
@@ -178,6 +181,76 @@ def listar_evaluadores_activos() -> list[dict]:
         columnas = [descripcion[0] for descripcion in cursor.description]
 
         return [dict(zip(columnas, fila)) for fila in filas]
+
+    finally:
+        cursor.close()
+        connection.close()
+
+
+# US-018 - Evaluar solicitud
+
+def obtener_resumen_solicitud(id_solicitud: int) -> dict | None:
+    connection = get_connection()
+    cursor = connection.cursor()
+
+    try:
+        query = """
+            SELECT
+                s.id_solicitud,
+                e.primer_nombre || ' ' || e.primer_apellido AS estudiante,
+                c.titulo AS convocatoria,
+                s.estado
+            FROM solicitudes s
+            JOIN estudiantes e ON e.id_estudiante = s.id_estudiante
+            JOIN convocatorias c ON c.id_convocatoria = s.id_convocatoria
+            WHERE s.id_solicitud = %s;
+        """
+
+        cursor.execute(query, (id_solicitud,))
+        fila = cursor.fetchone()
+
+        if fila is None:
+            return None
+
+        columnas = [descripcion[0] for descripcion in cursor.description]
+
+        return dict(zip(columnas, fila))
+
+    finally:
+        cursor.close()
+        connection.close()
+
+
+def registrar_resultado_evaluacion(
+    id_evaluacion: int,
+    puntaje: int,
+    recomendacion: str
+) -> bool:
+    connection = get_connection()
+    cursor = connection.cursor()
+
+    try:
+        # La condición estado = 'asignada' evita evaluar dos veces
+        # aunque lleguen dos peticiones al mismo tiempo.
+        query = """
+            UPDATE evaluaciones
+            SET puntaje = %s,
+                recomendacion = %s,
+                estado = 'evaluada',
+                fecha_evaluacion = CURRENT_TIMESTAMP
+            WHERE id_evaluacion = %s
+              AND estado = 'asignada';
+        """
+
+        cursor.execute(query, (puntaje, recomendacion, id_evaluacion))
+
+        connection.commit()
+
+        return cursor.rowcount > 0
+
+    except Exception:
+        connection.rollback()
+        raise
 
     finally:
         cursor.close()
