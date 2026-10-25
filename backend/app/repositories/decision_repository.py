@@ -66,3 +66,30 @@ def registrar_decision(
     finally:
         cursor.close()
         connection.close()
+
+
+def obtener_resumen_evaluaciones(
+    id_solicitud: int,
+    estado_terminado: str
+) -> dict:
+
+    connection = get_connection()
+    cursor = connection.cursor()
+
+    try:
+        query = """
+            SELECT
+                COUNT(*) AS total,
+                COUNT(*) FILTER (WHERE estado = %s) AS evaluadas
+            FROM evaluaciones
+            WHERE id_solicitud = %s;
+        """
+
+        cursor.execute(query, (estado_terminado, id_solicitud))
+        total, evaluadas = cursor.fetchone()
+
+        return {"total": total, "evaluadas": evaluadas}
+
+    finally:
+        cursor.close()
+        connection.close()
