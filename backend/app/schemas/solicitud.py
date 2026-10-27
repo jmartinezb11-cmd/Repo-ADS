@@ -60,3 +60,12 @@ class DetalleSolicitudRespuesta(CompletarSolicitudRequest):
     id_detalle: int
     id_solicitud: int
     fecha_actualizacion: datetime
+
+
+# US-025 - Esquema de respuesta
+
+class EstadoSolicitudRespuesta(BaseModel):
+    id_solicitud: int
+    id_convocatoria: int
+    estado: str
+    fecha_ultima_actualizacion: datetime

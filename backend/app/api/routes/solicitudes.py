@@ -7,7 +7,9 @@ from app.services.solicitud_service import (
     completar_solicitud,
     consultar_solicitudes_estudiante,
     consultar_solicitud,
+    consultar_estado_solicitud,
 )
+from app.schemas.solicitud import EstadoSolicitudRespuesta
 
 from app.schemas.solicitud import CompletarSolicitudRequest
 
@@ -131,4 +133,38 @@ def obtener_mi_solicitud(
         raise HTTPException(
             status_code=500,
             detail="Ocurrió un error al consultar la solicitud."
+        )
+
+# US-025 - Consultar estado de solicitud
+
+@router.get(
+    "/{id_solicitud}/estado",
+    response_model=EstadoSolicitudRespuesta
+)
+def obtener_estado_solicitud(
+    id_solicitud: int,
+    user: dict = Depends(require_role(Role.ESTUDIANTE))
+):
+    try:
+        return consultar_estado_solicitud(
+            id_solicitud=id_solicitud,
+            id_estudiante=user["id"]
+        )
+
+    except PermissionError as error:
+        raise HTTPException(
+            status_code=403,
+            detail=str(error)
+        )
+
+    except ValueError as error:
+        raise HTTPException(
+            status_code=404,
+            detail=str(error)
+        )
+
+    except Exception:
+        raise HTTPException(
+            status_code=500,
+            detail="Ocurrió un error al consultar el estado de la solicitud."
         )

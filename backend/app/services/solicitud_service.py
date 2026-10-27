@@ -116,3 +116,27 @@ def consultar_solicitud(
         "solicitud": solicitud,
         "detalle": detalle
     }
+
+
+# US-025 - Consultar estado de solicitud
+
+def consultar_estado_solicitud(
+    id_solicitud: int,
+    id_estudiante: int
+) -> dict:
+    solicitud = obtener_solicitud_por_id(id_solicitud)
+
+    if solicitud is None:
+        raise ValueError("Solicitud no encontrada.")
+
+    if solicitud["id_estudiante"] != id_estudiante:
+        raise PermissionError(
+            "No tienes permiso para consultar esta solicitud."
+        )
+
+    return {
+        "id_solicitud": solicitud["id_solicitud"],
+        "id_convocatoria": solicitud["id_convocatoria"],
+        "estado": solicitud["estado"],
+        "fecha_ultima_actualizacion": solicitud["fecha_ultima_actualizacion"]
+    }
