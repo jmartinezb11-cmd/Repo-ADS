@@ -39,6 +39,7 @@ def registrar_solicitud(id_estudiante: int, id_convocatoria: int) -> dict:
 
     return obtener_solicitud_por_id(id_solicitud)
 
+
 # US-011 - Completar solicitud
 
 def completar_solicitud(
@@ -91,7 +92,9 @@ def completar_solicitud(
 
     return obtener_detalle_solicitud(id_solicitud)
 
+
 # US-013 - Consultar solicitudes
+
 def consultar_solicitudes_estudiante(id_estudiante: int) -> list[dict]:
     return obtener_solicitudes_por_estudiante(id_estudiante)
 
@@ -115,4 +118,28 @@ def consultar_solicitud(
     return {
         "solicitud": solicitud,
         "detalle": detalle
+    }
+
+
+# US-025 - Consultar estado de solicitud
+
+def consultar_estado_solicitud(
+    id_solicitud: int,
+    id_estudiante: int
+) -> dict:
+    solicitud = obtener_solicitud_por_id(id_solicitud)
+
+    if solicitud is None:
+        raise ValueError("Solicitud no encontrada.")
+
+    if solicitud["id_estudiante"] != id_estudiante:
+        raise PermissionError(
+            "No tienes permiso para consultar esta solicitud."
+        )
+
+    return {
+        "id_solicitud": solicitud["id_solicitud"],
+        "id_convocatoria": solicitud["id_convocatoria"],
+        "estado": solicitud["estado"],
+        "fecha_ultima_actualizacion": solicitud["fecha_ultima_actualizacion"]
     }

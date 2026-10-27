@@ -1,0 +1,109 @@
+
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Gestión de Comités - Sistema de Becas</title>
+    <link rel="stylesheet" href="css/gestion-comites.css">
+</head>
+<body>
+    <main class="contenedor">
+        <header class="encabezado">
+            <div>
+                <p class="etiqueta">Sistema de Gestión de Becas</p>
+                <h1>Gestión de Comités</h1>
+                <p>Administración de comités evaluadores e integrantes.</p>
+            </div>
+            <a href="admin.html" class="enlace">Volver al panel</a>
+        </header>
+
+        <div id="mensaje" class="mensaje" role="status" aria-live="polite"></div>
+
+        <section class="paneles">
+            <article class="tarjeta">
+                <h2>Crear comité</h2>
+                <p class="descripcion">Registra un nuevo comité evaluador.</p>
+
+                <form id="form-crear">
+                    <label for="nombre">Nombre del comité</label>
+                    <input
+                        type="text"
+                        id="nombre"
+                        minlength="3"
+                        maxlength="150"
+                        required
+                        placeholder="Ej. Comité de Becas 2026"
+                    >
+
+                    <label for="descripcion">Descripción</label>
+                    <textarea
+                        id="descripcion"
+                        rows="4"
+                        placeholder="Describe el propósito del comité"
+                    ></textarea>
+
+                    <button type="submit">Crear comité</button>
+                </form>
+            </article>
+
+            <article class="tarjeta">
+                <h2>Asignar integrante</h2>
+                <p class="descripcion">Agrega un evaluador o administrador a un comité.</p>
+
+                <form id="form-asignar">
+                    <label for="id-comite">ID del comité</label>
+                    <input
+                        type="number"
+                        id="id-comite"
+                        min="1"
+                        required
+                        placeholder="Ej. 1"
+                    >
+
+                    <label for="id-usuario">ID del usuario</label>
+                    <input
+                        type="number"
+                        id="id-usuario"
+                        min="1"
+                        required
+                        placeholder="Ej. 8"
+                    >
+
+                    <label for="rol">Rol dentro del comité</label>
+                    <select id="rol" required>
+                        <option value="EVALUADOR">Evaluador</option>
+                        <option value="PRESIDENTE">Presidente</option>
+                        <option value="SECRETARIO">Secretario</option>
+                    </select>
+
+                    <button type="submit">Asignar integrante</button>
+                </form>
+            </article>
+        </section>
+
+        <section class="tarjeta consulta">
+            <h2>Consultar integrantes</h2>
+            <p class="descripcion">Consulta la información real de un comité.</p>
+
+            <form id="form-consultar" class="buscador">
+                <input
+                    type="number"
+                    id="id-consulta"
+                    min="1"
+                    required
+                    value="1"
+                    aria-label="ID del comité a consultar"
+                >
+                <button type="submit">Consultar comité</button>
+            </form>
+
+            <div id="resultado-comite" class="resultado">
+                Selecciona un comité para visualizar sus integrantes.
+            </div>
+        </section>
+    </main>
+
+    <script src="js/gestion-comites.js"></script>
+</body>
+</html>
