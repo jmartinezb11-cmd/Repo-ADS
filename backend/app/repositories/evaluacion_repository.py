@@ -230,8 +230,6 @@ def registrar_resultado_evaluacion(
     cursor = connection.cursor()
 
     try:
-        # La condición estado = 'asignada' evita evaluar dos veces
-        # aunque lleguen dos peticiones al mismo tiempo.
         query = """
             UPDATE evaluaciones
             SET puntaje = %s,

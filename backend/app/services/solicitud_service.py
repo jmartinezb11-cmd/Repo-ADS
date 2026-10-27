@@ -39,6 +39,7 @@ def registrar_solicitud(id_estudiante: int, id_convocatoria: int) -> dict:
 
     return obtener_solicitud_por_id(id_solicitud)
 
+
 # US-011 - Completar solicitud
 
 def completar_solicitud(
@@ -91,7 +92,9 @@ def completar_solicitud(
 
     return obtener_detalle_solicitud(id_solicitud)
 
+
 # US-013 - Consultar solicitudes
+
 def consultar_solicitudes_estudiante(id_estudiante: int) -> list[dict]:
     return obtener_solicitudes_por_estudiante(id_estudiante)
 

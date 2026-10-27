@@ -1,5 +1,12 @@
-# Servicio con MOCK para US-023: Consultar comité
+from app.repositories.comite_repository import (
+    crear_comite_db,
+    obtener_comite_db,
+    obtener_usuario_para_comite_db,
+    asignar_miembro_db,
+    obtener_integrantes_comite_db,
+)
 
+# Mock de respaldo para US-023: Consultar comité
 MOCK_COMITE = {
     "id_comite": 101,
     "nombre_comite": "Comité Evaluador de Proyectos 2026",
@@ -8,29 +15,29 @@ MOCK_COMITE = {
             "id_integrante": 1,
             "nombre": "Dr. Carlos Mendoza",
             "rol": "Presidente",
-            "asignaciones": ["Evaluación Convocatoria A1", "Revisión Final"]
+            "asignaciones": ["Evaluación Convocatoria A1", "Revisión Final"],
         },
         {
             "id_integrante": 2,
             "nombre": "Ing. Ana Lucía Morales",
             "rol": "Evaluador Senior",
-            "asignaciones": ["Evaluación Propuestas US-021"]
+            "asignaciones": ["Evaluación Propuestas US-021"],
         },
         {
             "id_integrante": 3,
             "nombre": "Lic. Luis González",
             "rol": "Secretario",
-            "asignaciones": ["Control de actas y seguimiento"]
-        }
-    ]
+            "asignaciones": ["Control de actas y seguimiento"],
+        },
+    ],
 }
 
+
 def obtener_integrantes_comite_mock(id_comite: int):
-    # Cuando desbloqueen la US-21 o la base de datos, aquí se hará la consulta real
+    """
+    Retorna datos mock para la consulta de integrantes del comité.
+    """
     return MOCK_COMITE
-
-
-from app.repositories.comite_repository import crear_comite_db
 
 
 def crear_comite(nombre_comite: str, descripcion: str | None = None):
@@ -47,17 +54,10 @@ def crear_comite(nombre_comite: str, descripcion: str | None = None):
     return crear_comite_db(nombre_comite, descripcion)
 
 
-from app.repositories.comite_repository import (
-    obtener_comite_db,
-    obtener_usuario_para_comite_db,
-    asignar_miembro_db
-)
-
-
 def asignar_miembro_comite(
     id_comite: int,
     id_estudiante: int,
-    rol_comite: str
+    rol_comite: str,
 ):
     comite = obtener_comite_db(id_comite)
 
@@ -86,11 +86,8 @@ def asignar_miembro_comite(
     return asignar_miembro_db(
         id_comite=id_comite,
         id_estudiante=id_estudiante,
-        rol_comite=rol_comite
+        rol_comite=rol_comite,
     )
-
-
-from app.repositories.comite_repository import obtener_integrantes_comite_db
 
 
 def consultar_comite_real(id_comite: int):
@@ -107,5 +104,5 @@ def consultar_comite_real(id_comite: int):
     return {
         "id_comite": comite["id_comite"],
         "nombre_comite": comite["nombre_comite"],
-        "integrantes": integrantes
+        "integrantes": integrantes,
     }
