@@ -145,6 +145,23 @@ function mostrarSolicitudes(solicitudes) {
             </button>
         `;
 
+        // US-012 - Acceso al envío definitivo
+        if (solicitud.estado === "pendiente") {
+            const btnEnviar = document.createElement("button");
+
+            btnEnviar.type = "button";
+            btnEnviar.className = "btn-detalle";
+            btnEnviar.textContent = "Enviar solicitud";
+            btnEnviar.style.marginLeft = "10px";
+
+            btnEnviar.addEventListener("click", () => {
+                window.location.href =
+                    `enviar-solicitud.html?solicitud=${solicitud.id_solicitud}`;
+            });
+
+            tarjeta.appendChild(btnEnviar);
+        }
+
         listaSolicitudes.appendChild(tarjeta);
     });
 

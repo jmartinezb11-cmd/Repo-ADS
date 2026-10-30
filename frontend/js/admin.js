@@ -3,7 +3,7 @@ const mensaje = document.getElementById("mensaje");
 
 // OJO: usa el mismo puerto que el resto del proyecto haya
 // acordado para el backend.
-const API_BASE = "http://127.0.0.1:8000/api/usuarios";
+const API_BASE = "http://127.0.0.1:8001/api/usuarios";
 
 
 function mostrarMensaje(texto, tipo) {
@@ -14,15 +14,8 @@ function mostrarMensaje(texto, tipo) {
 
 
 function obtenerToken() {
-    const datosUsuario = sessionStorage.getItem("usuario");
-
-    if (!datosUsuario) {
-        return null;
-    }
-
-    return JSON.parse(datosUsuario).token;
+    return localStorage.getItem("token");
 }
-
 
 async function cargarUsuarios() {
 
@@ -105,15 +98,43 @@ function dibujarTabla(usuarios) {
                     ${usuario.estado_cuenta}
                 </span>
             </td>
-            <td>
-                <button
-                    class="boton-accion"
-                    data-id="${usuario.id_estudiante}"
-                    data-estado="${estadoSiguiente}"
-                >
-                    ${textoBoton}
-                </button>
-            </td>
+            
+<td>
+    <div class="acciones-usuario">
+        <button
+            class="boton-accion"
+            data-id="${usuario.id_estudiante}"
+            data-estado="${estadoSiguiente}"
+        >
+            ${textoBoton}
+        </button>
+
+        ${usuario.rol !== "administrador" ? `
+            <select
+                class="selector-rol"
+                data-id="${usuario.id_estudiante}"
+                aria-label="Nuevo rol del usuario"
+            >
+                <option value="estudiante"
+                    ${usuario.rol === "estudiante" ? "selected" : ""}>
+                    Estudiante
+                </option>
+                <option value="evaluador"
+                    ${usuario.rol === "evaluador" ? "selected" : ""}>
+                    Evaluador
+                </option>
+            </select>
+
+            <button
+                class="boton-cambiar-rol"
+                data-id="${usuario.id_estudiante}"
+            >
+                Guardar rol
+            </button>
+        ` : ""}
+    </div>
+</td>
+
         `;
 
         cuerpoTabla.appendChild(fila);
@@ -127,6 +148,21 @@ function dibujarTabla(usuarios) {
             );
         });
     });
+    
+document.querySelectorAll(".boton-cambiar-rol").forEach(function (boton) {
+    boton.addEventListener("click", function () {
+        const id = boton.dataset.id;
+
+        const selector = document.querySelector(
+            `.selector-rol[data-id="${id}"]`
+        );
+
+        if (selector) {
+            cambiarRol(id, selector.value);
+        }
+    });
+});
+
 }
 
 
@@ -175,3 +211,61 @@ async function cambiarEstado(idEstudiante, nuevoEstado) {
 
 
 cargarUsuarios();
+
+
+async function cambiarRol(idEstudiante, nuevoRol) {
+    const token = obtenerToken();
+
+    if (!token) {
+        mostrarMensaje("Debes iniciar sesión nuevamente.", "error");
+        return;
+    }
+
+    const confirmado = confirm(
+        `¿Confirmas cambiar el rol del usuario a ${nuevoRol}?`
+    );
+
+    if (!confirmado) return;
+
+    try {
+        const respuesta = await fetch(
+            `${API_BASE}/${idEstudiante}/rol`,
+            {
+                method: "PATCH",
+                headers: {
+                    "Content-Type": "application/json",
+                    "Authorization": `Bearer ${token}`
+                },
+                body: JSON.stringify({
+                    nuevo_rol: nuevoRol
+                })
+            }
+        );
+
+        const resultado = await respuesta.json();
+
+        if (!respuesta.ok) {
+            mostrarMensaje(
+                typeof resultado.detail === "string"
+                    ? resultado.detail
+                    : "No fue posible cambiar el rol.",
+                "error"
+            );
+            return;
+        }
+
+        mostrarMensaje(
+            "Rol actualizado correctamente.",
+            "exito"
+        );
+
+        await cargarUsuarios();
+
+    } catch (error) {
+        console.error(error);
+        mostrarMensaje(
+            "No se pudo conectar con el servidor.",
+            "error"
+        );
+    }
+}

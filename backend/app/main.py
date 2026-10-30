@@ -36,12 +36,13 @@ app.include_router(usuarios_router)
 app.include_router(convocatorias_router)
 app.include_router(comite_router)
 app.include_router(roles_demo.router)
+app.include_router(decisiones_router)
 app.include_router(solicitudes_router)
 app.include_router(documentos_router)
 app.include_router(evaluaciones_router)
 app.include_router(reportes_router)
 app.include_router(reporte_resultados_router)
-app.include_router(decisiones_router)
+
 
 
 @app.get("/")

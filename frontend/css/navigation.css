@@ -1,0 +1,145 @@
+
+/* Navegación compartida ADS */
+
+.ads-navegacion {
+  box-sizing: border-box;
+  width: 100%;
+  min-height: 70px;
+  padding: 14px 24px;
+  background: #142b49;
+  color: #ffffff;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 20px;
+  font-family: Arial, sans-serif;
+}
+
+.ads-navegacion *,
+.ads-navegacion *::before,
+.ads-navegacion *::after {
+  box-sizing: border-box;
+}
+
+.ads-nav-izquierda,
+.ads-nav-derecha {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  min-width: 0;
+}
+
+.ads-nav-marca {
+  font-size: 18px;
+  white-space: nowrap;
+}
+
+.ads-nav-usuario {
+  font-size: 14px;
+  overflow-wrap: anywhere;
+}
+
+.ads-btn-volver,
+.ads-btn-salir {
+  padding: 10px 14px;
+  border: 1px solid #7186a3;
+  border-radius: 8px;
+  background: transparent;
+  color: white;
+  cursor: pointer;
+  font-size: 14px;
+  white-space: nowrap;
+}
+
+.ads-btn-volver:hover {
+  background: #28476b;
+}
+
+.ads-btn-salir:hover {
+  background: #b91c1c;
+}
+
+.ads-btn-volver:focus-visible,
+.ads-btn-salir:focus-visible {
+  outline: 3px solid #93c5fd;
+  outline-offset: 2px;
+}
+
+/* Ajustes de contenido */
+body {
+  max-width: 100%;
+  overflow-x: hidden;
+}
+
+.ads-navegacion + .contenedor {
+  max-width: min(1200px, calc(100% - 32px));
+  margin: 24px auto;
+}
+
+/* Tablet */
+@media (max-width: 900px) {
+  .ads-navegacion {
+    padding: 14px 18px;
+    flex-wrap: wrap;
+  }
+
+  .ads-nav-izquierda,
+  .ads-nav-derecha {
+    flex-wrap: wrap;
+  }
+}
+
+/* Celular */
+@media (max-width: 600px) {
+  .ads-navegacion {
+    padding: 14px;
+    align-items: stretch;
+    flex-direction: column;
+    gap: 14px;
+  }
+
+  .ads-nav-izquierda,
+  .ads-nav-derecha {
+    justify-content: space-between;
+    width: 100%;
+    gap: 10px;
+  }
+
+  .ads-nav-marca {
+    font-size: 16px;
+  }
+
+  .ads-nav-usuario {
+    font-size: 12px;
+  }
+
+  .ads-btn-volver,
+  .ads-btn-salir {
+    padding: 9px 10px;
+    font-size: 12px;
+    white-space: normal;
+  }
+
+  .ads-navegacion + .contenedor {
+    max-width: calc(100% - 20px);
+    margin: 16px auto;
+    padding: 16px;
+  }
+}
+
+@media (max-width: 380px) {
+  .ads-nav-izquierda {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .ads-btn-volver {
+    width: 100%;
+  }
+}
+
+/* Ocultar controles de regreso antiguos */
+a[hidden],
+button[hidden] {
+  display: none !important;
+}

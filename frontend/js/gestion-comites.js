@@ -13,39 +13,78 @@ function obtenerToken() {
     return localStorage.getItem("token");
 }
 
+
 async function peticion(url, opciones = {}) {
     const token = obtenerToken();
 
-    const headers = {
-        "Content-Type": "application/json",
-        ...opciones.headers
-    };
-
-    if (token) {
-        headers.Authorization = `Bearer ${token}`;
+    if (!token) {
+        throw new Error(
+            "Tu sesión no está disponible. Inicia sesión nuevamente."
+        );
     }
 
-    const respuesta = await fetch(url, {
-        ...opciones,
-        headers
-    });
+    const headers = {
+        "Content-Type": "application/json",
+        ...opciones.headers,
+        Authorization: `Bearer ${token}`
+    };
 
-    const datos = await respuesta.json();
+    let respuesta;
+
+    try {
+        respuesta = await fetch(url, {
+            ...opciones,
+            headers
+        });
+    } catch (error) {
+        console.error("Error de conexión:", error);
+
+        throw new Error(
+            "No se pudo conectar con el servidor. " +
+            "Verifica que FastAPI esté ejecutándose en el puerto 8001 " +
+            "y revisa la consola del navegador."
+        );
+    }
+
+    const datos = await respuesta.json().catch(() => ({}));
 
     if (!respuesta.ok) {
-        let detalle = datos.detail || "Error en la solicitud.";
+        let detalle = datos.detail || "No se pudo completar la operación.";
 
         if (Array.isArray(detalle)) {
             detalle = detalle
-                .map(error => error.msg)
+                .map(error => error.msg || "Dato inválido")
                 .join(", ");
         }
 
-        throw new Error(detalle);
+        if (respuesta.status === 401) {
+            throw new Error(
+                "Tu sesión expiró o no es válida. Inicia sesión nuevamente."
+            );
+        }
+
+        if (respuesta.status === 403) {
+            throw new Error(
+                "No tienes permisos para realizar esta operación."
+            );
+        }
+
+        if (respuesta.status === 404) {
+            throw new Error(
+                `No se encontró el recurso solicitado. ${detalle}`
+            );
+        }
+
+        throw new Error(
+            typeof detalle === "string"
+                ? detalle
+                : "El servidor devolvió un error."
+        );
     }
 
     return datos;
 }
+
 
 document.getElementById("form-crear").addEventListener("submit", async (evento) => {
     evento.preventDefault();
@@ -54,7 +93,7 @@ document.getElementById("form-crear").addEventListener("submit", async (evento) 
     boton.disabled = true;
 
     try {
-        const datos = await peticion(`${API_COMITES}/`, {
+        const datos = await peticion(API_COMITES, {
             method: "POST",
             body: JSON.stringify({
                 nombre_comite: document.getElementById("nombre").value.trim(),
@@ -65,8 +104,13 @@ document.getElementById("form-crear").addEventListener("submit", async (evento) 
         mostrarMensaje(`Comité creado correctamente. ID: ${datos.id_comite}`);
 
         document.getElementById("form-crear").reset();
-        document.getElementById("id-comite").value = datos.id_comite;
-        document.getElementById("id-consulta").value = datos.id_comite;
+        await cargarComites();
+
+        document.getElementById("id-comite").value =
+            String(datos.id_comite);
+
+        document.getElementById("id-consulta").value =
+            String(datos.id_comite);
 
     } catch (error) {
         mostrarMensaje(error.message, "error");
@@ -157,3 +201,126 @@ async function consultarComite(idComite) {
 }
 
 consultarComite(1);
+
+
+const API_USUARIOS = "http://127.0.0.1:8001/api/usuarios";
+
+let usuariosDisponibles = [];
+
+function mostrarUsuarios(filtro = "") {
+    const selector = document.getElementById("id-usuario");
+    const valorAnterior = selector.value;
+
+    selector.replaceChildren();
+
+    const opcionInicial = new Option(
+        "Selecciona un integrante",
+        ""
+    );
+
+    selector.add(opcionInicial);
+
+    const texto = filtro.trim().toLowerCase();
+
+    const usuariosFiltrados = usuariosDisponibles.filter(usuario => {
+        return (
+            usuario.nombre_completo.toLowerCase().includes(texto) ||
+            usuario.email.toLowerCase().includes(texto)
+        );
+    });
+
+    usuariosFiltrados.forEach(usuario => {
+        const etiqueta =
+            `${usuario.nombre_completo} — ${usuario.email} (${usuario.rol})`;
+
+        selector.add(
+            new Option(etiqueta, String(usuario.id_estudiante))
+        );
+    });
+
+    if (
+        usuariosFiltrados.some(
+            usuario => String(usuario.id_estudiante) === valorAnterior
+        )
+    ) {
+        selector.value = valorAnterior;
+    }
+}
+
+async function cargarUsuariosDisponibles() {
+    const selector = document.getElementById("id-usuario");
+
+    try {
+        const datos = await peticion(`${API_USUARIOS}/`);
+
+        usuariosDisponibles = datos.usuarios.filter(usuario =>
+            usuario.rol === "evaluador" ||
+            usuario.rol === "administrador"
+        );
+
+        mostrarUsuarios();
+
+        if (!usuariosDisponibles.length) {
+            selector.options[0].textContent =
+                "No hay integrantes disponibles";
+        }
+
+    } catch (error) {
+        console.error(error);
+
+        selector.replaceChildren(
+            new Option("No se pudieron cargar los usuarios", "")
+        );
+
+        mostrarMensaje(error.message, "error");
+    }
+}
+
+document.getElementById("buscar-usuario")
+    .addEventListener("input", evento => {
+        mostrarUsuarios(evento.target.value);
+    });
+
+cargarUsuariosDisponibles();
+
+
+async function cargarComites() {
+    const selectorAsignar = document.getElementById("id-comite");
+    const selectorConsultar = document.getElementById("id-consulta");
+
+    try {
+        const datos = await peticion(API_COMITES);
+
+        const comites = datos.comites || [];
+
+        selectorAsignar.replaceChildren(
+            new Option("Selecciona un comité", "")
+        );
+
+        selectorConsultar.replaceChildren(
+            new Option("Selecciona un comité", "")
+        );
+
+        comites.forEach(comite => {
+            const etiqueta = `${comite.nombre_comite} (${comite.estado})`;
+            const valor = String(comite.id_comite);
+
+            selectorAsignar.add(new Option(etiqueta, valor));
+            selectorConsultar.add(new Option(etiqueta, valor));
+        });
+
+        if (!comites.length) {
+            mostrarMensaje(
+                "Todavía no hay comités registrados.",
+                "error"
+            );
+        }
+
+    } catch (error) {
+        console.error(error);
+        mostrarMensaje(error.message, "error");
+    }
+}
+
+cargarComites();
+

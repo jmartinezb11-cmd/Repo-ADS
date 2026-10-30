@@ -8,6 +8,7 @@ from app.repositories.solicitud_repository import (
     guardar_detalle_solicitud,
     obtener_detalle_solicitud,
     obtener_solicitudes_por_estudiante,
+    marcar_solicitud_como_enviada,
 )
 
 from app.repositories.convocatoria_repository import obtener_convocatoria_por_id
@@ -143,3 +144,68 @@ def consultar_estado_solicitud(
         "estado": solicitud["estado"],
         "fecha_ultima_actualizacion": solicitud["fecha_ultima_actualizacion"]
     }
+
+# US-012 - Enviar solicitud definitivamente
+
+def enviar_solicitud(id_solicitud: int, id_estudiante: int) -> dict:
+    solicitud = obtener_solicitud_por_id(id_solicitud)
+
+    if solicitud is None:
+        raise ValueError("Solicitud no encontrada.")
+
+    if solicitud["id_estudiante"] != id_estudiante:
+        raise PermissionError(
+            "No tienes permiso para enviar esta solicitud."
+        )
+
+    if solicitud["estado"] != "pendiente":
+        raise ValueError(
+            f"No se puede enviar una solicitud en estado '{solicitud['estado']}'."
+        )
+
+    # Verificar formulario socioeconómico y académico
+    detalle = obtener_detalle_solicitud(id_solicitud)
+
+    if detalle is None:
+        raise ValueError(
+            "Debes completar el formulario antes de enviar la solicitud."
+        )
+
+    # Verificar que exista al menos un documento cargado
+    from app.core.database import get_connection
+
+    connection = get_connection()
+    cursor = connection.cursor()
+
+    try:
+        cursor.execute(
+            """
+            SELECT COUNT(*)
+            FROM documentos
+            WHERE id_solicitud = %s;
+            """,
+            (id_solicitud,)
+        )
+
+        total_documentos = cursor.fetchone()[0]
+
+    finally:
+        cursor.close()
+        connection.close()
+
+    if total_documentos == 0:
+        raise ValueError(
+            "Debes cargar al menos un documento antes de enviar la solicitud."
+        )
+
+    resultado = marcar_solicitud_como_enviada(
+        id_solicitud,
+        id_estudiante
+    )
+
+    if resultado is None:
+        raise ValueError(
+            "La solicitud ya fue enviada o cambió de estado."
+        )
+
+    return resultado

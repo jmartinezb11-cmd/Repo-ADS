@@ -1,0 +1,59 @@
+
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Panel principal | Arise-Techno Becas</title>
+  <link rel="stylesheet" href="css/dashboard.css">
+</head>
+<body>
+  <div class="layout">
+    <aside class="sidebar" id="sidebar">
+      <div class="marca">
+        <h2>🎓 Arise-Techno Becas</h2>
+        <p>Sistema de Gestión de Becas</p>
+      </div>
+
+      <nav id="menu" aria-label="Navegación principal"></nav>
+
+      <button id="cerrarSesion" class="btn-salir" type="button">
+        Cerrar sesión
+      </button>
+    </aside>
+
+    <main class="contenido">
+        
+    <div class="barra-movil">
+    <span>🎓 Arise-Techno Becas</span>
+
+    <button
+        type="button"
+        id="btnMenu"
+        class="btn-menu"
+        aria-label="Abrir menú de navegación"
+        aria-controls="sidebar"
+        aria-expanded="false"
+    >
+        ☰
+    </button>
+    </div>
+
+      <header class="encabezado">
+        <div>
+          <h1 id="tituloPanel">Panel principal</h1>
+          <p id="descripcionPanel">Bienvenido al sistema</p>
+        </div>
+        <div class="usuario">
+          <span id="nombreUsuario"></span>
+          <small id="rolUsuario"></small>
+        </div>
+      </header>
+
+      <section id="tarjetas" class="tarjetas"></section>
+    </main>
+  </div>
+
+  <script src="js/dashboard.js"></script>
+</body>
+</html>

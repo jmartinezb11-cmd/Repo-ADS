@@ -74,7 +74,7 @@ function renderizarTarjetas(lista) {
           <span class="badge badge-publicada">${item.estado}</span>
         </div>
         <div class="card-meta">
-          <span>📅 <strong>Cierre:</strong> ${item.fecha_fin}</span>
+         <span>📅 <strong>Cierre:</strong> ${item.fecha_cierre ?? "No disponible"}</span>
         </div>
         <p class="card-desc">${item.descripcion}</p>
       </div>
@@ -104,7 +104,10 @@ window.abrirDetalle = function(id) {
     modalEstado.textContent = conv.estado;
     modalEstado.className = `badge badge-${conv.estado.toLowerCase()}`;
   }
-  if (modalFechas) modalFechas.textContent = `Plazo: del ${conv.fecha_inicio} al ${conv.fecha_fin}`;
+ if (modalFechas) {
+  modalFechas.textContent =
+    `Plazo: del ${conv.fecha_apertura ?? "No disponible"} al ${conv.fecha_cierre ?? "No disponible"}`;
+}
   if (modalDesc) modalDesc.textContent = conv.descripcion;
 
   if (listaReq) {

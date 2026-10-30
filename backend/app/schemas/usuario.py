@@ -23,3 +23,15 @@ class CambiarEstadoResponse(BaseModel):
     mensaje: str
     id_estudiante: int
     nuevo_estado: str
+
+from typing import Literal
+
+
+class CambiarRolRequest(BaseModel):
+    nuevo_rol: Literal["estudiante", "evaluador"]
+
+
+class CambiarRolResponse(BaseModel):
+    mensaje: str
+    id_estudiante: int
+    nuevo_rol: str

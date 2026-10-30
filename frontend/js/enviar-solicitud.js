@@ -1,13 +1,5 @@
-const API_URL = "http://127.0.0.1:8001/api";
 
-let solicitudMock = {
-  id_solicitud: 1,
-  convocatoria: "Beca Universitaria de Grado 2026",
-  estudiante: "Kenneth Alexander Vides García",
-  estado: "borrador",
-  formularioCompleto: true,
-  documentosCargados: true
-};
+const API_URL = "http://127.0.0.1:8001/api";
 
 const checklistEl = document.getElementById("checklist-requisitos");
 const btnEnviar = document.getElementById("btn-enviar-solicitud");
@@ -16,82 +8,175 @@ const btnConfirmar = document.getElementById("btn-confirmar-envio");
 const btnCancelar = document.getElementById("btn-cancelar-modal");
 const alertBox = document.getElementById("alert-box");
 
+let solicitudSeleccionada = null;
+
 function mostrarMensaje(texto, tipo) {
-  alertBox.className = `alert alert-${tipo}`;
-  alertBox.textContent = texto;
-  alertBox.classList.remove("hidden");
-  setTimeout(() => alertBox.classList.add("hidden"), 4500);
+    alertBox.textContent = texto;
+    alertBox.className = `alert alert-${tipo}`;
+    alertBox.classList.remove("hidden");
 }
 
-function renderizarSolicitud(datos) {
-  document.getElementById("info-id").textContent = `#${datos.id_solicitud}`;
-  document.getElementById("info-convocatoria").textContent = datos.convocatoria;
-  document.getElementById("info-estudiante").textContent = datos.estudiante;
+async function consultarAPI(ruta, opciones = {}) {
+    const token = localStorage.getItem("token");
 
-  const estadoBadge = document.getElementById("info-estado");
-  estadoBadge.textContent = datos.estado.toUpperCase();
-  if (datos.estado === "enviada") {
-    estadoBadge.className = "badge badge-enviada";
-  }
+    if (!token) {
+        window.location.href = "login.html";
+        throw new Error("Debes iniciar sesión.");
+    }
 
-  checklistEl.innerHTML = `
-    <li class="${datos.formularioCompleto ? 'item-completo' : 'item-incompleto'}">
-      <span>1. Formulario socioeconómico y académico completo (US-011)</span>
-      <strong>${datos.formularioCompleto ? 'COMPLETO' : 'PENDIENTE'}</strong>
-    </li>
-    <li class="${datos.documentosCargados ? 'item-completo' : 'item-incompleto'}">
-      <span>2. Expediente de documentación cargado (US-014)</span>
-      <strong>${datos.documentosCargados ? 'COMPLETO' : 'PENDIENTE'}</strong>
-    </li>
-  `;
+    const respuesta = await fetch(`${API_URL}${ruta}`, {
+        ...opciones,
+        headers: {
+            Authorization: `Bearer ${token}`,
+            ...(opciones.headers || {})
+        }
+    });
 
-  const listoParaEnviar = datos.formularioCompleto && datos.documentosCargados && datos.estado === "borrador";
-  btnEnviar.disabled = !listoParaEnviar;
+    const datos = await respuesta.json();
 
-  if (datos.estado === "enviada") {
-    btnEnviar.textContent = "Solicitud Enviada (Bloqueada)";
+    if (!respuesta.ok) {
+        const detalle = datos.detail;
+        throw new Error(
+            typeof detalle === "string"
+                ? detalle
+                : "No se pudo completar la operación."
+        );
+    }
+
+    return datos;
+}
+
+function agregarRequisito(texto, completo) {
+    const item = document.createElement("li");
+    item.className = completo ? "item-completo" : "item-incompleto";
+
+    const descripcion = document.createElement("span");
+    descripcion.textContent = texto;
+
+    const estado = document.createElement("strong");
+    estado.textContent = completo ? "COMPLETO" : "PENDIENTE";
+
+    item.append(descripcion, estado);
+    checklistEl.appendChild(item);
+}
+
+async function cargarSolicitud() {
     btnEnviar.disabled = true;
-  }
+    checklistEl.innerHTML = "";
+
+    try {
+        const parametros = new URLSearchParams(window.location.search);
+        const idSolicitado = Number(parametros.get("solicitud"));
+
+        const resultado = await consultarAPI("/solicitudes/mis-solicitudes");
+        const solicitudes = resultado.solicitudes || [];
+
+        if (solicitudes.length === 0) {
+            mostrarMensaje("No tienes solicitudes registradas.", "error");
+            return;
+        }
+
+        const solicitud = idSolicitado
+            ? solicitudes.find(s => s.id_solicitud === idSolicitado)
+            : solicitudes.length === 1 ? solicitudes[0] : null;
+
+        if (!solicitud) {
+            mostrarMensaje(
+                "Selecciona una solicitud desde Mis solicitudes.",
+                "error"
+            );
+            return;
+        }
+
+        solicitudSeleccionada = solicitud;
+
+        document.getElementById("info-id").textContent =
+            `#${solicitud.id_solicitud}`;
+
+        document.getElementById("info-convocatoria").textContent =
+            solicitud.convocatoria;
+
+        const usuario = JSON.parse(
+            sessionStorage.getItem("usuario") || "null"
+        );
+
+        document.getElementById("info-estudiante").textContent =
+            usuario?.nombre || usuario?.correo || `Estudiante #${solicitud.id_estudiante}`;
+
+        document.getElementById("info-estado").textContent =
+            solicitud.estado.toUpperCase();
+
+        const [expediente, documentos] = await Promise.all([
+            consultarAPI(`/solicitudes/${solicitud.id_solicitud}`),
+            consultarAPI(`/documentos/solicitud/${solicitud.id_solicitud}`)
+        ]);
+
+        const formularioCompleto = expediente.detalle !== null;
+        const documentosCargados = documentos.length > 0;
+
+        agregarRequisito(
+            "Formulario socioeconómico y académico completo (US-011)",
+            formularioCompleto
+        );
+
+        agregarRequisito(
+            "Expediente de documentación cargado (US-014)",
+            documentosCargados
+        );
+
+        const puedeEnviar =
+            solicitud.estado === "pendiente" &&
+            formularioCompleto &&
+            documentosCargados;
+
+        btnEnviar.disabled = !puedeEnviar;
+
+        if (solicitud.estado === "enviada") {
+            btnEnviar.textContent = "Solicitud enviada";
+        } else if (["aprobada", "rechazada"].includes(solicitud.estado)) {
+            btnEnviar.textContent = "Solicitud resuelta";
+        } else {
+            btnEnviar.textContent = "Enviar Solicitud Definitiva";
+        }
+
+    } catch (error) {
+        mostrarMensaje(error.message, "error");
+    }
 }
 
 btnEnviar.addEventListener("click", () => {
-  modal.classList.remove("hidden");
+    if (solicitudSeleccionada && !btnEnviar.disabled) {
+        modal.classList.remove("hidden");
+    }
 });
 
 btnCancelar.addEventListener("click", () => {
-  modal.classList.add("hidden");
+    modal.classList.add("hidden");
 });
 
 btnConfirmar.addEventListener("click", async () => {
-  modal.classList.add("hidden");
+    modal.classList.add("hidden");
 
-  try {
-    const token = localStorage.getItem("token") || localStorage.getItem("access_token");
+    if (!solicitudSeleccionada) return;
 
-    const respuesta = await fetch(`${API_URL}/solicitudes/${solicitudMock.id_solicitud}/enviar`, {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        ...(token ? { "Authorization": `Bearer ${token}` } : {})
-      }
-    });
+    btnConfirmar.disabled = true;
+    btnEnviar.disabled = true;
 
-    if (respuesta.ok) {
-      solicitudMock.estado = "enviada";
-      renderizarSolicitud(solicitudMock);
-      mostrarMensaje("Solicitud enviada formalmente al comité evaluador.", "success");
-    } else {
-      solicitudMock.estado = "enviada";
-      renderizarSolicitud(solicitudMock);
-      mostrarMensaje("Envío procesado en modo local (Mock activo). Edición bloqueada.", "success");
+    try {
+        const resultado = await consultarAPI(
+            `/solicitudes/${solicitudSeleccionada.id_solicitud}/enviar`,
+            { method: "POST" }
+        );
+
+        mostrarMensaje(resultado.mensaje, "success");
+        await cargarSolicitud();
+
+    } catch (error) {
+        mostrarMensaje(error.message, "error");
+        await cargarSolicitud();
+    } finally {
+        btnConfirmar.disabled = false;
     }
-  } catch (err) {
-    solicitudMock.estado = "enviada";
-    renderizarSolicitud(solicitudMock);
-    mostrarMensaje("Envío registrado localmente. La solicitud no admitirá modificaciones.", "success");
-  }
 });
 
-document.addEventListener("DOMContentLoaded", () => {
-  renderizarSolicitud(solicitudMock);
-});
+document.addEventListener("DOMContentLoaded", cargarSolicitud);

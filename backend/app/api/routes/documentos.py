@@ -107,6 +107,11 @@ def revisar(
         raise HTTPException(status_code=404, detail=str(error))
 
     except Exception:
+        import logging
+        logging.getLogger(__name__).exception(
+            "Error inesperado al consultar documentos de la solicitud %s",
+            id_solicitud
+        )
         raise HTTPException(
             status_code=500,
             detail="Ocurrió un error al consultar los documentos."

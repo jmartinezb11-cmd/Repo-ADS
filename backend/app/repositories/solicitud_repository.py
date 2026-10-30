@@ -253,3 +253,105 @@ def obtener_solicitudes_por_estudiante(id_estudiante: int) -> list[dict]:
     finally:
         cursor.close()
         connection.close()
+
+        # US-024 - Listar solicitudes para decisión administrativa
+
+def obtener_solicitudes_para_decision() -> list[dict]:
+    connection = get_connection()
+    cursor = connection.cursor()
+
+    try:
+        query = """
+            SELECT
+                s.id_solicitud,
+                s.id_estudiante,
+                s.id_convocatoria,
+                c.titulo AS convocatoria,
+                s.estado,
+                s.fecha_creacion,
+                COUNT(e.id_evaluacion) AS total_evaluaciones,
+                COUNT(e.id_evaluacion) FILTER (
+                    WHERE e.estado = 'evaluada'
+                ) AS evaluaciones_completadas
+            FROM solicitudes s
+            INNER JOIN convocatorias c
+                ON c.id_convocatoria = s.id_convocatoria
+            LEFT JOIN evaluaciones e
+                ON e.id_solicitud = s.id_solicitud
+            WHERE s.estado = 'enviada'
+            GROUP BY
+                s.id_solicitud,
+                s.id_estudiante,
+                s.id_convocatoria,
+                c.titulo,
+                s.estado,
+                s.fecha_creacion
+            ORDER BY s.fecha_creacion DESC;
+        """
+
+        cursor.execute(query)
+        filas = cursor.fetchall()
+
+        columnas = [
+            descripcion[0]
+            for descripcion in cursor.description
+        ]
+
+        return [
+            dict(zip(columnas, fila))
+            for fila in filas
+        ]
+
+    finally:
+        cursor.close()
+        connection.close()
+
+        # US-012 - Enviar solicitud definitivamente
+
+def marcar_solicitud_como_enviada(
+    id_solicitud: int,
+    id_estudiante: int
+) -> dict | None:
+    connection = get_connection()
+    cursor = connection.cursor()
+
+    try:
+        query = """
+            UPDATE solicitudes
+            SET estado = 'enviada',
+                fecha_ultima_actualizacion = CURRENT_TIMESTAMP
+            WHERE id_solicitud = %s
+              AND id_estudiante = %s
+              AND estado = 'pendiente'
+            RETURNING
+                id_solicitud,
+                id_estudiante,
+                id_convocatoria,
+                estado,
+                fecha_ultima_actualizacion;
+        """
+
+        cursor.execute(query, (id_solicitud, id_estudiante))
+        fila = cursor.fetchone()
+
+        if fila is None:
+            connection.rollback()
+            return None
+
+        columnas = [
+            descripcion[0]
+            for descripcion in cursor.description
+        ]
+
+        solicitud = dict(zip(columnas, fila))
+        connection.commit()
+
+        return solicitud
+
+    except Exception:
+        connection.rollback()
+        raise
+
+    finally:
+        cursor.close()
+        connection.close()
