@@ -59,9 +59,11 @@ if (formLogin) {
           "exito"
         );
 
+        
         setTimeout(function () {
-          window.location.href = "perfil.html";
+          window.location.href = "dashboard.html";
         }, 600);
+
 
       } else {
 

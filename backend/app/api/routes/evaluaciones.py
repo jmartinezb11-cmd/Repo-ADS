@@ -1,3 +1,4 @@
+import logging
 from fastapi import APIRouter, Depends, HTTPException
 
 from app.core.deps import require_role
@@ -19,6 +20,7 @@ from app.services.evaluacion_service import (
     obtener_detalle_evaluacion,
     evaluar_solicitud,
 )
+logger = logging.getLogger(__name__)
 
 router = APIRouter(
     prefix="/api/evaluaciones",
@@ -48,6 +50,7 @@ def asignar(
         raise HTTPException(status_code=400, detail=str(error))
 
     except Exception:
+        logger.exception("Error inesperado al asignar evaluación")
         raise HTTPException(
             status_code=500,
             detail="Ocurrió un error al asignar la evaluación."

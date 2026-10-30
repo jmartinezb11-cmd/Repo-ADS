@@ -406,3 +406,39 @@ def actualizar_estado_cuenta(id_estudiante: int, nuevo_estado: str) -> bool:
             cursor.close()
 
         connection.close()        
+
+        
+def actualizar_rol_estudiante(
+    id_estudiante: int,
+    nuevo_rol: str
+) -> bool:
+    connection = get_connection()
+    cursor = None
+
+    try:
+        cursor = connection.cursor()
+
+        cursor.execute(
+            """
+            UPDATE estudiantes
+            SET rol = %s
+            WHERE id_estudiante = %s
+              AND rol <> 'administrador'
+            """,
+            (nuevo_rol, id_estudiante)
+        )
+
+        actualizado = cursor.rowcount > 0
+        connection.commit()
+
+        return actualizado
+
+    except Exception:
+        connection.rollback()
+        raise
+
+    finally:
+        if cursor:
+            cursor.close()
+
+        connection.close()

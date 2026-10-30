@@ -8,6 +8,7 @@ from app.services.solicitud_service import (
     consultar_solicitudes_estudiante,
     consultar_solicitud,
     consultar_estado_solicitud,
+    enviar_solicitud,
 )
 from app.schemas.solicitud import (
     EstadoSolicitudRespuesta,
@@ -86,6 +87,47 @@ def completar(
             detail="Ocurrió un error al completar la solicitud."
         )
 
+# US-012 - Enviar solicitud definitivamente
+
+@router.post("/{id_solicitud}/enviar")
+def enviar_solicitud_definitiva(
+    id_solicitud: int,
+    user: dict = Depends(require_role(Role.ESTUDIANTE))
+):
+    try:
+        solicitud = enviar_solicitud(
+            id_solicitud=id_solicitud,
+            id_estudiante=user["id"]
+        )
+
+        return {
+            "mensaje": "Solicitud enviada correctamente.",
+            "solicitud": solicitud
+        }
+
+    except PermissionError as error:
+        raise HTTPException(
+            status_code=403,
+            detail=str(error)
+        )
+
+    except ValueError as error:
+        raise HTTPException(
+            status_code=400,
+            detail=str(error)
+        )
+
+    except Exception:
+        import logging
+        logging.getLogger(__name__).exception(
+            "Error al enviar la solicitud %s",
+            id_solicitud
+        )
+
+        raise HTTPException(
+            status_code=500,
+            detail="Ocurrió un error al enviar la solicitud."
+        )
 
 # US-013 - Consultar solicitudes
 

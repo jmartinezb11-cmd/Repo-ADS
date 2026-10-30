@@ -4,6 +4,7 @@ from app.repositories.comite_repository import (
     obtener_usuario_para_comite_db,
     asignar_miembro_db,
     obtener_integrantes_comite_db,
+    listar_comites_db,
 )
 
 # Mock de respaldo para US-023: Consultar comité
@@ -106,3 +107,6 @@ def consultar_comite_real(id_comite: int):
         "nombre_comite": comite["nombre_comite"],
         "integrantes": integrantes,
     }
+
+def listar_comites():
+    return listar_comites_db()

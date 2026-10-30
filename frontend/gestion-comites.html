@@ -6,6 +6,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Gestión de Comités - Sistema de Becas</title>
     <link rel="stylesheet" href="css/gestion-comites.css">
+    <link rel="stylesheet" href="css/navigation.css">
 </head>
 <body>
     <main class="contenedor">
@@ -52,23 +53,32 @@
                 <p class="descripcion">Agrega un evaluador o administrador a un comité.</p>
 
                 <form id="form-asignar">
-                    <label for="id-comite">ID del comité</label>
-                    <input
-                        type="number"
-                        id="id-comite"
-                        min="1"
-                        required
-                        placeholder="Ej. 1"
-                    >
+                    
+                    <label for="id-comite">Seleccionar comité</label>
+                    <select id="id-comite" required>
+                        <option value="">Cargando comités...</option>
+                    </select>
 
-                    <label for="id-usuario">ID del usuario</label>
-                    <input
-                        type="number"
-                        id="id-usuario"
-                        min="1"
-                        required
-                        placeholder="Ej. 8"
-                    >
+
+                    
+                        <label for="buscar-usuario">Buscar integrante</label>
+                        <input
+                            type="search"
+                            id="buscar-usuario"
+                            placeholder="Escribe un nombre o correo electrónico"
+                            autocomplete="off"
+                        >
+
+                        <label for="id-usuario">Seleccionar integrante</label>
+                        <select id="id-usuario" required>
+                            <option value="">Cargando usuarios disponibles...</option>
+                        </select>
+
+                        <p id="ayuda-usuario" class="descripcion">
+                            Solo aparecen usuarios con rol evaluador o administrador.
+                        </p>
+
+                        
 
                     <label for="rol">Rol dentro del comité</label>
                     <select id="rol" required>
@@ -87,15 +97,15 @@
             <p class="descripcion">Consulta la información real de un comité.</p>
 
             <form id="form-consultar" class="buscador">
-                <input
-                    type="number"
-                    id="id-consulta"
-                    min="1"
-                    required
-                    value="1"
-                    aria-label="ID del comité a consultar"
-                >
+
+                <label for="id-consulta">Consultar comité</label>
+
+                <select id="id-consulta" required>
+                    <option value="">Selecciona un comité</option>
+                </select>
+
                 <button type="submit">Consultar comité</button>
+
             </form>
 
             <div id="resultado-comite" class="resultado">
@@ -105,5 +115,6 @@
     </main>
 
     <script src="js/gestion-comites.js"></script>
+    <script src="js/navigation.js"></script>
 </body>
 </html>

@@ -1,7 +1,8 @@
 from app.repositories.estudiante_repository import (
     listar_estudiantes,
     obtener_estudiante_por_id,
-    actualizar_estado_cuenta
+    actualizar_estado_cuenta,
+    actualizar_rol_estudiante
 )
 
 
@@ -59,4 +60,54 @@ def cambiar_estado_usuario(
     return {
         "id_estudiante": id_estudiante,
         "nuevo_estado": nuevo_estado
+    }
+
+
+def cambiar_rol_usuario(
+    id_estudiante: int,
+    nuevo_rol: str,
+    usuario_actual: dict
+) -> dict:
+
+    if usuario_actual["rol"] != "administrador":
+        raise PermissionError(
+            "No tienes permisos para cambiar roles."
+        )
+
+    if usuario_actual["id"] == id_estudiante:
+        raise ValueError(
+            "No puedes modificar tu propio rol."
+        )
+
+    estudiante = obtener_estudiante_por_id(id_estudiante)
+
+    if estudiante is None:
+        raise LookupError("Usuario no encontrado.")
+
+    if estudiante["rol"] == "administrador":
+        raise ValueError(
+            "No se permite modificar el rol de un administrador."
+        )
+
+    if nuevo_rol not in ("estudiante", "evaluador"):
+        raise ValueError("Rol no permitido.")
+
+    if estudiante["rol"] == nuevo_rol:
+        raise ValueError(
+            "El usuario ya tiene asignado ese rol."
+        )
+
+    actualizado = actualizar_rol_estudiante(
+        id_estudiante,
+        nuevo_rol
+    )
+
+    if not actualizado:
+        raise ValueError(
+            "No fue posible actualizar el rol."
+        )
+
+    return {
+        "id_estudiante": id_estudiante,
+        "nuevo_rol": nuevo_rol
     }

@@ -12,9 +12,21 @@ from app.services.comite_service import (
     consultar_comite_real,
     crear_comite,
     asignar_miembro_comite,
+    listar_comites,
 )
 
 router = APIRouter(prefix="/comite", tags=["US-023 - Comité"])
+
+
+@router.get("")
+def obtener_comites(
+    usuario_actual: dict = Depends(
+        require_role(Role.ADMINISTRADOR)
+    )
+):
+    return {
+        "comites": listar_comites()
+    }
 
 
 @router.get("/{id_comite}", response_model=ComiteResponse)
@@ -77,5 +89,12 @@ def registrar_miembro_comite(
     except LookupError as error:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,
+            detail=str(error),
+
+        )
+    
+    except ValueError as error:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
             detail=str(error),
         )

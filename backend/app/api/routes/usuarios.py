@@ -15,6 +15,8 @@ from app.services.usuario_service import (
     obtener_usuario,
     cambiar_estado_usuario
 )
+from app.schemas.usuario import CambiarRolRequest, CambiarRolResponse
+from app.services.usuario_service import cambiar_rol_usuario
 
 
 router = APIRouter(
@@ -65,3 +67,46 @@ def cambiar_estado(
 
     except ValueError as error:
         raise HTTPException(status_code=400, detail=str(error))
+
+    
+@router.patch(
+    "/{id_estudiante}/rol",
+    response_model=CambiarRolResponse
+)
+def actualizar_rol_usuario(
+    id_estudiante: int,
+    datos: CambiarRolRequest,
+    usuario_actual: dict = Depends(
+        require_role(Role.ADMINISTRADOR)
+    )
+):
+    try:
+        resultado = cambiar_rol_usuario(
+            id_estudiante=id_estudiante,
+            nuevo_rol=datos.nuevo_rol,
+            usuario_actual=usuario_actual
+        )
+
+        return {
+            "mensaje": "Rol actualizado correctamente.",
+            "id_estudiante": resultado["id_estudiante"],
+            "nuevo_rol": resultado["nuevo_rol"]
+        }
+
+    except LookupError as error:
+        raise HTTPException(
+            status_code=404,
+            detail=str(error)
+        )
+
+    except PermissionError as error:
+        raise HTTPException(
+            status_code=403,
+            detail=str(error)
+        )
+
+    except ValueError as error:
+        raise HTTPException(
+            status_code=400,
+            detail=str(error)
+        )

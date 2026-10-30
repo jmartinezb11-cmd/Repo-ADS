@@ -407,12 +407,113 @@ function mostrarDocumentos(documentos) {
             abrirDocumento(documento.id_documento);
         });
 
+        // Controles para validar documentos
+        if (documento.estado_validacion === "pendiente") {
+            const controles = crearElemento("div", "controles-validacion");
+
+            const comentario = document.createElement("textarea");
+            comentario.placeholder = "Comentario de validación (obligatorio al rechazar)";
+            comentario.rows = 2;
+
+            const btnAprobar = crearElemento(
+                "button", "btn-principal btn-pequeno", "Aprobar"
+            );
+            btnAprobar.type = "button";
+
+            const btnRechazar = crearElemento(
+                "button", "btn-principal btn-pequeno", "Rechazar"
+            );
+            btnRechazar.type = "button";
+
+            btnAprobar.addEventListener("click", () => {
+                validarDocumento(
+                    documento.id_documento,
+                    "aprobado",
+                    comentario.value
+                );
+            });
+
+            btnRechazar.addEventListener("click", () => {
+                if (!comentario.value.trim()) {
+                    mostrarMensaje(
+                        "Debes escribir un comentario para rechazar el documento.",
+                        "error"
+                    );
+                    return;
+                }
+
+                validarDocumento(
+                    documento.id_documento,
+                    "rechazado",
+                    comentario.value
+                );
+            });
+
+            controles.appendChild(comentario);
+            controles.appendChild(btnAprobar);
+            controles.appendChild(btnRechazar);
+
+            datos.appendChild(controles);
+        }
+
         fila.appendChild(datos);
         fila.appendChild(boton);
         listaDocumentos.appendChild(fila);
     });
 }
 
+// ---------- Validación de documentos (US-016) ----------
+
+async function validarDocumento(idDocumento, estado, comentario) {
+    limpiarMensaje();
+
+    if (!idEvaluacionActual) {
+        mostrarMensaje("Primero selecciona una evaluación.", "error");
+        return;
+    }
+
+    try {
+        const resultado = await pedirJson(
+            `${API_DOCUMENTOS}/${idDocumento}/validar`,
+            {
+                method: "PATCH",
+                headers: {
+                    "Content-Type": "application/json"
+                },
+                body: JSON.stringify({
+                    estado_validacion: estado,
+                    comentario_validacion: comentario.trim() || null
+                })
+            },
+            "No se pudo validar el documento."
+        );
+
+        if (resultado === null) {
+            return;
+        }
+
+        // Recuperar la solicitud correspondiente a esta evaluación.
+        const evaluacion = await pedirJson(
+            `${API_EVALUACIONES}/${idEvaluacionActual}`,
+            {},
+            "No se pudo actualizar la lista de documentos."
+        );
+
+        if (evaluacion !== null) {
+            await cargarDocumentos(evaluacion.solicitud.id_solicitud);
+        }
+
+        mostrarMensaje(
+            estado === "aprobado"
+                ? "Documento aprobado correctamente."
+                : "Documento rechazado correctamente.",
+            "exito"
+        );
+
+    } catch (error) {
+        mostrarMensaje(error.message, "error");
+    }
+}
 
 async function abrirDocumento(idDocumento) {
     limpiarMensaje();

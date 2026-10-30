@@ -170,3 +170,33 @@ def obtener_integrantes_comite_db(id_comite: int):
 
     finally:
         conexion.close()
+
+        
+def listar_comites_db():
+    conexion = get_connection()
+
+    try:
+        with conexion.cursor() as cursor:
+            cursor.execute(
+                """
+                SELECT id_comite, nombre_comite,
+                       descripcion, estado, fecha_creacion
+                FROM comites
+                ORDER BY nombre_comite
+                """
+            )
+
+            filas = cursor.fetchall()
+            columnas = [
+                columna[0]
+                for columna in cursor.description
+            ]
+
+            return [
+                dict(zip(columnas, fila))
+                for fila in filas
+            ]
+
+    finally:
+        conexion.close()
+

@@ -13,6 +13,7 @@ from app.api.routes.evaluaciones import router as evaluaciones_router
 from app.api.routes.reportes import router as reportes_router
 from app.api.routes.decisiones import router as decisiones_router
 from app.api import roles_demo
+from app.api.routes.reporte_resultados import router as reporte_resultados_router
 
 app = FastAPI(
     title="Sistema de Gestión de Becas",
@@ -35,11 +36,13 @@ app.include_router(usuarios_router)
 app.include_router(convocatorias_router)
 app.include_router(comite_router)
 app.include_router(roles_demo.router)
+app.include_router(decisiones_router)
 app.include_router(solicitudes_router)
 app.include_router(documentos_router)
 app.include_router(evaluaciones_router)
 app.include_router(reportes_router)
-app.include_router(decisiones_router)
+app.include_router(reporte_resultados_router)
+
 
 
 @app.get("/")

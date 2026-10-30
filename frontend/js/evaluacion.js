@@ -54,7 +54,10 @@ async function cargarEvaluacion() {
     console.warn("Backend no disponible. Cargando datos mock unificados (US-019 / US-020).");
   }
 
-  renderizarDatos(mockEvaluacion);
+mostrarMensaje(
+    "No se pudo cargar la evaluación real. Verifica la conexión o la ruta del backend.",
+    "error"
+);
 }
 
 function renderizarDatos(datos) {
