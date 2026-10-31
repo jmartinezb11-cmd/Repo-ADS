@@ -14,6 +14,10 @@ CARPETA_DOCUMENTOS = "uploads/documentos"
 EXTENSIONES_PERMITIDAS = [".pdf"]
 TAMANIO_MAXIMO_BYTES = 5 * 1024 * 1024  # 5 MB
 
+# Solo una solicitud pendiente acepta documentos nuevos.
+# Después del envío definitivo el expediente queda bloqueado.
+ESTADO_EXPEDIENTE_ABIERTO = "pendiente"
+
 
 def cargar_documento(
     id_solicitud: int,
@@ -30,6 +34,12 @@ def cargar_documento(
     if solicitud["id_estudiante"] != id_estudiante:
         raise PermissionError(
             "No tienes permiso para subir documentos a esta solicitud."
+        )
+
+    if solicitud["estado"] != ESTADO_EXPEDIENTE_ABIERTO:
+        raise ValueError(
+            f"No se pueden cargar documentos: la solicitud está en estado "
+            f"'{solicitud['estado']}' y su expediente quedó bloqueado."
         )
 
     extension = os.path.splitext(nombre_archivo)[1].lower()
